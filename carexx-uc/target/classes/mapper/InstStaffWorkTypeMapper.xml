@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sh.carexx.uc.dao.InstStaffWorkTypeMapper">
+	<resultMap id="BaseResultMap"
+		type="com.sh.carexx.model.uc.InstStaffWorkType">
+		<id column="id" jdbcType="BIGINT" property="id" />
+		<result column="staff_id" jdbcType="INTEGER" property="staffId" />
+		<result column="work_type_id" jdbcType="INTEGER" property="workTypeId" />
+		<result column="settle_status" jdbcType="TINYINT" property="settleStatus" />
+		<result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+		<result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		id, staff_id, work_type_id, settle_status,
+		create_time, modify_time
+	</sql>
+	<insert id="insert" parameterType="com.sh.carexx.model.uc.InstStaffWorkType">
+		INSERT INTO carexx_inst_staff_work_type
+		(
+			staff_id,
+			work_type_id,
+			settle_status,
+			create_time
+		)
+		VALUES
+		(
+			#{staffId,jdbcType=INTEGER},
+			#{workTypeId,jdbcType=INTEGER},
+			#{settleStatus,jdbcType=TINYINT},
+			now()
+		)
+	</insert>
+	<select id="selectById" parameterType="java.lang.Long" resultMap="BaseResultMap">
+		SELECT
+			<include refid="Base_Column_List" />
+		FROM 
+			carexx_inst_staff_work_type
+		WHERE id = #{id,jdbcType=BIGINT} and settle_status = 1
+	</select>
+	<select id="selectByStaffIdAndWorkTypeId" parameterType="com.sh.carexx.bean.staff.InstStaffWorkTypeFormBean" resultMap="BaseResultMap" >
+		select
+			<include refid="Base_Column_List" />
+		from 
+			carexx_inst_staff_work_type
+		where staff_id = #{staffId,jdbcType=INTEGER} and work_type_id = #{workTypeId,jdbcType=INTEGER} and settle_status = 1
+	</select>
+	<select id="selectByStaffId" parameterType="java.lang.Integer" resultType="java.util.Map">
+		SELECT
+			ciswt.id id, 
+			ciswt.staff_id staffId, 
+			ciswt.work_type_id workTypeId, 
+			cwt.work_type_name workTypeName, 
+			ciswt.settle_status settleStatus,
+			ciswt.create_time createTime, 
+			ciswt.modify_time modifyTime
+		FROM 
+			carexx_inst_staff_work_type ciswt
+		LEFT JOIN carexx_work_type cwt ON ciswt.work_type_id = cwt.id
+		WHERE ciswt.staff_id = #{staffId,jdbcType=INTEGER} and ciswt.settle_status = 1
+	</select>
+	<select id="selectInstStaffWorkTypeCount" parameterType="com.sh.carexx.bean.staff.InstStaffWorkTypeFormBean" resultType="java.lang.Integer">
+		SELECT
+			count(1) totalCount
+		FROM
+			carexx_inst_staff_work_type ciswts
+		<where>
+			 ciswts.settle_status = 1
+			<if test="staffId != null ">
+				and ciswts.staff_id = #{staffId,jdbcType=INTEGER}
+			</if>
+			<if test="workTypeId != null ">
+				and ciswts.work_type_id = #{workTypeId,jdbcType=INTEGER}
+			</if>
+		</where>
+	</select>
+	<select id="selectInstStaffWorkTypeList" parameterType="com.sh.carexx.bean.staff.InstStaffWorkTypeFormBean" resultType="java.util.Map">
+		SELECT
+			ciswts.id id,
+			ciswts.staff_id staffId,
+			cis.real_name realName, 
+			ciswts.work_type_id workTypeId,
+			cwt.work_type_name workTypeName, 
+			ciswts.settle_status settleStatus,
+			ciswts.create_time createTime,
+			ciswts.modify_time modifyTime
+		FROM
+			carexx_inst_staff_work_type ciswts
+		LEFT JOIN carexx_inst_staff cis ON ciswts.staff_id = cis.id
+		LEFT JOIN carexx_work_type cwt ON ciswts.work_type_id = cwt.id
+		LEFT JOIN carexx_inst_work_type_settle ciwts ON ciswts.work_type_id = ciwts.id
+		<where>
+			 ciswts.settle_status = 1
+			<if test="staffId != null ">
+				and ciswts.staff_id = #{staffId,jdbcType=INTEGER}
+			</if>
+			<if test="workTypeId != null ">
+				and ciswts.work_type_id = #{workTypeId,jdbcType=INTEGER}
+			</if>
+		</where>
+		
+		ORDER BY createTime DESC
+		limit ${rowIndex}, ${pageSize}
+	</select>
+	
+	<update id="update" parameterType="com.sh.carexx.model.uc.InstStaffWorkType">
+		update
+			 carexx_inst_staff_work_type
+		set
+			staff_id = #{staffId,jdbcType=INTEGER},
+			work_type_id = #{workTypeId,jdbcType=INTEGER},
+			modify_time = now()
+		where
+			id = #{id,jdbcType=BIGINT}
+	</update>
+	
+	<update id="updateStatus">
+		update
+			carexx_inst_staff_work_type
+		set
+			settle_status=#{targetStatus,jdbcType=TINYINT},
+			modify_time = now()
+		where
+			id = #{id,jdbcType=BIGINT} and settle_status = #{srcStatus,jdbcType=TINYINT}
+	</update>
+</mapper>

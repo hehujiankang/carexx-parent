@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sh.carexx.uc.dao.InstStaffMapper">
+	<resultMap id="BaseResultMap" type="com.sh.carexx.model.uc.InstStaff">
+		<id column="id" jdbcType="INTEGER" property="id" />
+		<result column="inst_id" jdbcType="INTEGER" property="instId" />
+		<result column="service_inst_id" jdbcType="INTEGER" property="serviceInstId" />
+		<result column="person_type" jdbcType="TINYINT" property="personType" />
+		<result column="job_status" jdbcType="TINYINT" property="jobStatus" />
+		<result column="staff_status" jdbcType="TINYINT" property="staffStatus" />
+		<result column="real_name" jdbcType="VARCHAR" property="realName" />
+		<result column="id_no" jdbcType="CHAR" property="idNo" />
+		<result column="sex" jdbcType="TINYINT" property="sex" />
+		<result column="photo" jdbcType="VARCHAR" property="photo" />
+		<result column="birthday" jdbcType="DATE" property="birthday" />
+		<result column="phone" jdbcType="VARCHAR" property="phone" />
+		<result column="address" jdbcType="VARCHAR" property="address" />
+		<result column="entry_date" jdbcType="DATE" property="entryDate" />
+		<result column="leave_date" jdbcType="DATE" property="leaveDate" />
+		<result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+		<result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		id, inst_id, service_inst_id, person_type, job_status, staff_status,
+		real_name, id_no, sex, photo, birthday, phone, address,
+		entry_date, leave_date, create_time, modify_time
+	</sql>
+	<select id="selectById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+		SELECT
+			<include refid="Base_Column_List" />
+		FROM
+			carexx_inst_staff
+		WHERE 
+			id = #{id,jdbcType=INTEGER} and staff_status = 1 
+	</select>
+	<select id="selectByIdNo" resultMap="BaseResultMap">
+		SELECT
+			<include refid="Base_Column_List" />
+		FROM
+			carexx_inst_staff
+		WHERE
+			id_no = #{idNo,jdbcType=VARCHAR} and staff_status = 1 and inst_id = #{instId,jdbcType=INTEGER}
+	</select>
+	<select id="selectInstStaffCount" parameterType="com.sh.carexx.bean.staff.InstStaffQueryFormBean" resultType="java.lang.Integer">
+		SELECT
+			count(1) totalCount
+		FROM
+			carexx_inst_staff cis
+		LEFT JOIN carexx_care_inst cci ON cis.inst_id = cci.id
+		LEFT JOIN carexx_care_inst ccis ON cis.service_inst_id = ccis.id
+		LEFT JOIN carexx_inst_staff_work_type ciswt ON cis.id = ciswt.staff_id
+		LEFT JOIN carexx_work_type wct ON ciswt.work_type_id = wct.id
+		<where>
+			cis.staff_status = 1 
+			<if test="realName != null and realName != '' ">
+				and cis.real_name like CONCAT('%', '${realName}', '%')
+			</if>
+			<if test="personType != null ">
+				and cis.person_type = #{personType,jdbcType=TINYINT}
+			</if>
+			<if test="jobStatus != null">
+				and cis.job_status = #{jobStatus,jdbcType=TINYINT}
+			</if>
+			<if test="workTypeId != null">
+				and wct.id = #{workTypeId,jdbcType=INTEGER}
+			</if>
+			<if test="instId != null and instId > 0">
+				and cis.inst_id = #{instId,jdbcType=INTEGER}
+			</if>
+		</where>
+	</select>
+	<select id="selectInstStaffList" parameterType="com.sh.carexx.bean.staff.InstStaffQueryFormBean" resultType="java.util.Map">
+		SELECT
+			cis.id id,
+			cis.inst_id instId,
+			cci.inst_name instName,
+			cis.service_inst_id serviceInstId,
+			ccis.inst_name serviceInstName,
+			cis.person_type personType,
+			cis.job_status jobStatus,
+			cis.staff_status staffStatus,
+			cis.real_name realName,
+			wct.id workTypeId,
+			wct.work_type_name workTypeName,
+			cis.id_no idNo,
+			cis.sex sex,
+			cis.photo photo,
+			cis.birthday birthday,
+			cis.phone phone,
+			cis.address address,
+			cis.entry_date entryDate,
+			cis.leave_date leaveDate,
+			cis.create_time createTime,
+			cis.modify_time modifyTime
+		FROM
+			carexx_inst_staff cis
+		LEFT JOIN carexx_care_inst cci ON cis.inst_id = cci.id
+		LEFT JOIN carexx_care_inst ccis ON cis.service_inst_id = ccis.id
+		LEFT JOIN carexx_inst_staff_work_type ciswt ON cis.id = ciswt.staff_id
+		LEFT JOIN carexx_work_type wct ON ciswt.work_type_id = wct.id
+		<where>
+			cis.staff_status = 1 
+			<if test="realName != null and realName != '' ">
+				and cis.real_name like CONCAT('%', '${realName}', '%')
+			</if>
+			<if test="personType != null ">
+				and cis.person_type = #{personType,jdbcType=TINYINT}
+			</if>
+			<if test="jobStatus != null">
+				and cis.job_status = #{jobStatus,jdbcType=TINYINT}
+			</if>
+			<if test="workTypeId != null">
+				and wct.id = #{workTypeId,jdbcType=INTEGER}
+			</if>
+			<if test="instId != null and instId > 0">
+				and cis.inst_id = #{instId,jdbcType=INTEGER}
+			</if>
+		</where>
+		ORDER BY cis.create_time DESC
+		limit ${rowIndex}, ${pageSize}
+	</select>
+	<select id="selectInstStaffCountByServiceId" parameterType="com.sh.carexx.bean.staff.InstStaffQueryFormBean" resultType="java.lang.Integer">
+		SELECT
+			count(1) totalCount
+		FROM
+			carexx_inst_staff cis
+		JOIN carexx_inst_staff_work_type ciswt ON ciswt.staff_id = cis.id
+		JOIN carexx_care_service ccs ON ccs.work_type_id = ciswt.work_type_id
+		WHERE
+			ccs.id = #{serviceId,jdbcType=INTEGER} 
+			and cis.staff_status = 1  and cis.job_status = 1 
+			and cis.service_inst_id = #{serviceInstId,jdbcType=INTEGER}
+			<if test="realName != null and realName != '' ">
+				and cis.real_name like CONCAT('%', '${realName}', '%')
+			</if>
+	</select>
+	<select id="selectInstStaffListByServiceId" parameterType="com.sh.carexx.bean.staff.InstStaffQueryFormBean" resultType="java.util.Map">
+		SELECT
+			cis.id id,
+			cis.inst_id instId,
+			cci.inst_name instName,
+			cis.service_inst_id serviceInstId,
+			ccis.inst_name serviceInstName,
+			cis.person_type personType,
+			cis.job_status jobStatus,
+			cis.staff_status staffStatus,
+			cis.real_name realName,
+			cis.id_no idNo,
+			cis.sex sex,
+			cis.photo photo,
+			cis.birthday birthday,
+			cis.phone phone,
+			cis.address address,
+			cis.entry_date entryDate,
+			cis.leave_date leaveDate,
+			cis.create_time createTime,
+			cis.modify_time modifyTime, 
+			ccs.work_type_id workTypeId, 
+			cwt.work_type_name workTypeName
+		FROM
+			carexx_inst_staff cis
+		JOIN carexx_inst_staff_work_type ciswt ON ciswt.staff_id = cis.id
+		JOIN carexx_care_service ccs ON ccs.work_type_id = ciswt.work_type_id
+		LEFT JOIN carexx_care_inst cci ON cis.inst_id = cci.id
+		LEFT JOIN carexx_care_inst ccis ON cis.service_inst_id = ccis.id
+		LEFT JOIN carexx_work_type cwt ON ccs.work_type_id = cwt.id
+		WHERE
+			ccs.id = #{serviceId,jdbcType=INTEGER} and cis.service_inst_id = #{serviceInstId,jdbcType=INTEGER}
+			and cis.staff_status = 1  and cis.job_status = 1 
+			<if test="realName != null and realName != '' ">
+				and cis.real_name like CONCAT('%', '${realName}', '%')
+			</if>
+		ORDER BY cis.create_time DESC
+		limit ${rowIndex}, ${pageSize}
+	</select>
+	
+	<insert id="insert" parameterType="com.sh.carexx.model.uc.InstStaff"  useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO carexx_inst_staff (
+			inst_id,
+			service_inst_id,
+			person_type,
+			job_status,
+			staff_status,
+			real_name,
+			id_no,
+			sex,
+			photo,
+			birthday,
+			phone,
+			address,
+			entry_date,
+			leave_date,
+			create_time
+		)
+		VALUES
+		(
+			#{instId,jdbcType=INTEGER},
+			#{serviceInstId,jdbcType=INTEGER},
+			#{personType,jdbcType=TINYINT},
+			#{jobStatus,jdbcType=TINYINT},
+			#{staffStatus,jdbcType=TINYINT},
+			#{realName,jdbcType=VARCHAR},
+			#{idNo,jdbcType=VARCHAR},
+			#{sex,jdbcType=TINYINT},
+			#{photo,jdbcType=VARCHAR},
+			#{birthday,jdbcType=DATE},
+			#{phone,jdbcType=VARCHAR},
+			#{address,jdbcType=VARCHAR},
+			#{entryDate,jdbcType=DATE},
+			#{leaveDate,jdbcType=DATE},
+			now()
+		)
+	</insert>
+	<update id="update" parameterType="com.sh.carexx.model.uc.InstStaff">
+		UPDATE
+			carexx_inst_staff
+		SET
+			service_inst_id = #{serviceInstId,jdbcType=INTEGER},
+			person_type = #{personType,jdbcType=TINYINT},
+			job_status = #{jobStatus,jdbcType=TINYINT},
+			real_name = #{realName,jdbcType=VARCHAR},
+			id_no = #{idNo,jdbcType=VARCHAR},
+			sex = #{sex,jdbcType=TINYINT},
+			photo = #{photo,jdbcType=VARCHAR},
+			birthday = #{birthday,jdbcType=DATE},
+			phone = #{phone,jdbcType=VARCHAR},
+			address = #{address,jdbcType=VARCHAR},
+			entry_date = #{entryDate,jdbcType=DATE},
+			leave_date = #{leaveDate,jdbcType=DATE},
+			modify_time = now()
+		WHERE
+			id = #{id,jdbcType=INTEGER} and staff_status = 1 
+	</update>
+	<update id="delete" parameterType="java.lang.Integer">
+		UPDATE 
+			carexx_inst_staff
+		SET 
+			staff_status = 0,
+		 	modify_time = now()
+		WHERE
+			id = #{id,jdbcType=INTEGER} and staff_status = 1 
+	</update>
+</mapper>

@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sh.carexx.uc.dao.DictMapper">
+	<resultMap id="BaseResultMap" type="com.sh.carexx.model.uc.Dict">
+		<id column="id" jdbcType="INTEGER" property="id" />
+		<result column="dict_name" jdbcType="VARCHAR" property="dictName" />
+		<result column="dict_value" jdbcType="VARCHAR" property="dictValue" />
+		<result column="dict_status" jdbcType="TINYINT" property="dictStatus" />
+		<result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+		<result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		id, dict_name, dict_value, dict_status, create_time, modify_time
+	</sql>
+	<select id="selectDictCount" parameterType="com.sh.carexx.bean.dict.DictFormBean" resultType="java.lang.Integer">
+		SELECT
+			count(1) totalCount
+		FROM
+			carexx_dict
+		<where>
+			<if test="dictName != null and dictName!= ''">
+				dict_name like CONCAT('%', '${dictName}', '%')
+			</if>
+			<if test="dictValue != null and dictValue != ''">
+				and dict_value = #{dictValue,jdbcType=VARCHAR}
+			</if>
+			<if test="dictStatus != null">
+				and dict_status = #{dictStatus,jdbcType=VARCHAR}
+			</if>
+		</where>
+	</select>
+	<select id="selectDictList" parameterType="com.sh.carexx.bean.dict.DictFormBean" resultMap="BaseResultMap">
+		SELECT
+			<include refid="Base_Column_List" />
+		FROM
+			carexx_dict
+		<where>
+			<if test="dictName != null and dictName != ''">
+				dict_name like CONCAT('%', '${dictName}', '%')
+			</if>
+			<if test="dictValue != null and dictValue != ''">
+				and dict_value = #{dictValue,jdbcType=VARCHAR}
+			</if>
+			<if test="dictStatus != null">
+				and dict_status = #{dictStatus,jdbcType=VARCHAR}
+			</if>
+		</where>
+		ORDER BY
+			create_time DESC
+		LIMIT ${rowIndex}, ${pageSize}
+	</select>
+	<select id="selectById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+		SELECT
+			<include refid="Base_Column_List" />
+		FROM
+			carexx_dict
+		WHERE 
+			id = #{id,jdbcType=INTEGER}
+	</select>
+	<insert id="insert" parameterType="com.sh.carexx.model.uc.Dict">
+		INSERT INTO carexx_dict (
+			dict_name, dict_value,
+			dict_status, create_time
+		)
+		VALUES (
+			#{dictName,jdbcType=VARCHAR},
+			#{dictValue,jdbcType=VARCHAR},
+			#{dictStatus,jdbcType=TINYINT},
+			now()
+			)
+	</insert>
+	<update id="update" parameterType="com.sh.carexx.model.uc.Dict">
+		UPDATE
+			carexx_dict
+		SET
+			dict_name = #{dictName,jdbcType=VARCHAR},
+			dict_value = #{dictValue,jdbcType=VARCHAR},
+			modify_time = now()
+		WHERE
+			id = #{id,jdbcType=INTEGER}
+	</update>
+	<update id="updateStatus">
+		UPDATE
+			carexx_dict
+		SET
+			dict_status=#{targetStatus,jdbcType=TINYINT},
+			modify_time = now()
+		WHERE
+			id = #{id,jdbcType=INTEGER} and dict_status = #{srcStatus,jdbcType=TINYINT}
+	</update>
+</mapper>

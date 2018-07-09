@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sh.carexx.uc.dao.AclUserMonitorMapper">
+	<resultMap id="BaseResultMap" type="com.sh.carexx.model.uc.AclUserMonitor">
+		<id column="id" jdbcType="INTEGER" property="id" />
+		<result column="user_id" jdbcType="INTEGER" property="userId" />
+		<result column="acc_type" jdbcType="TINYINT" property="accType" />
+		<result column="acc_ip" jdbcType="VARCHAR" property="accIp" />
+		<result column="acc_ter_chnl" jdbcType="TINYINT" property="accTerChnl" />
+		<result column="acc_ter_ver" jdbcType="VARCHAR" property="accTerVer" />
+		<result column="acc_time" jdbcType="TIMESTAMP" property="accTime" />
+		<result column="remark" jdbcType="VARCHAR" property="remark" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		id, user_id, acc_type, acc_ip, acc_ter_chnl, acc_ter_ver, acc_time, remark
+	</sql>
+	<select id="selectById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+		select
+			<include refid="Base_Column_List" />
+		from 
+			carexx_acl_user_acc_log
+		where id = #{id,jdbcType=INTEGER}
+	</select>
+	<insert id="insert" parameterType="com.sh.carexx.model.uc.AclUserMonitor">
+		insert into carexx_acl_user_acc_log (
+			user_id, acc_type, acc_ip, acc_ter_chnl, acc_ter_ver, acc_time, remark
+		)
+		values (
+			#{userId,jdbcType=INTEGER}, #{accType,jdbcType=TINYINT}, #{accIp,jdbcType=VARCHAR},
+			#{accTerChnl,jdbcType=TINYINT}, #{accTerVer,jdbcType=VARCHAR}, now(), #{remark,jdbcType=VARCHAR}
+		)
+	</insert>
+</mapper>

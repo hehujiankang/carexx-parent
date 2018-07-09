@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sh.carexx.uc.dao.AclUserPwdMapper">
+	<resultMap id="BaseResultMap" type="com.sh.carexx.model.uc.AclUserPwd">
+		<id column="id" jdbcType="INTEGER" property="id" />
+		<result column="user_id" jdbcType="INTEGER" property="userId" />
+		<result column="pwd" jdbcType="CHAR" property="pwd" />
+		<result column="salt" jdbcType="VARCHAR" property="salt" />
+		<result column="status" jdbcType="TINYINT" property="status" />
+		<result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+		<result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		id, user_id, pwd, salt, status, create_time, modify_time
+	</sql>
+	<select id="selectById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+		select
+			<include refid="Base_Column_List" />
+		from 
+			carexx_acl_user_pwd
+		where 
+			id = #{id,jdbcType=INTEGER}
+	</select>
+	<select id="selectByUserId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+		select
+			<include refid="Base_Column_List" />
+		from 
+			carexx_acl_user_pwd
+		where 
+			user_id = #{userId,jdbcType=INTEGER}
+	</select>
+	<insert id="insert" parameterType="com.sh.carexx.model.uc.AclUserPwd">
+		insert into carexx_acl_user_pwd (
+			user_id, pwd, salt, status, create_time
+		)
+		values (
+			#{userId,jdbcType=INTEGER}, #{pwd,jdbcType=CHAR}, #{salt,jdbcType=VARCHAR},
+			#{status,jdbcType=TINYINT}, now()
+		)
+	</insert>
+	<update id="update">
+		update
+			carexx_acl_user_pwd
+		set 
+			pwd = #{pwd,jdbcType=CHAR},
+			modify_time = now()
+		where id = #{id,jdbcType=INTEGER}
+	</update>
+</mapper>

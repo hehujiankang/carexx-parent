@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sh.carexx.uc.dao.CareServiceMapper">
+	<resultMap id="BaseResultMap" type="com.sh.carexx.model.uc.CareService">
+		<id column="id" jdbcType="INTEGER" property="id" />
+		<result column="work_type_id" jdbcType="INTEGER" property="workTypeId" />
+		<result column="service_name" jdbcType="VARCHAR" property="serviceName" />
+		<result column="service_status" jdbcType="TINYINT" property="serviceStatus" />
+		<result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+		<result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		id, work_type_id, service_name, service_status, create_time, modify_time
+	</sql>
+	
+	<select id="selectByworkTypeIdAndserviceName" resultMap="BaseResultMap">
+		SELECT
+			<include refid="Base_Column_List" />
+		FROM
+			carexx_care_service
+		WHERE
+			work_type_id = #{workTypeId,jdbcType=INTEGER}
+			and service_name = #{serviceName,jdbcType=VARCHAR}
+	</select>
+	
+	<select id="selectById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+	    SELECT 
+	    	<include refid="Base_Column_List" />
+	    FROM 
+	    	carexx_care_service
+	    WHERE
+	    	 id = #{id,jdbcType=INTEGER}
+  	</select>
+  	
+	<select id="selectAllAvailable" resultMap="BaseResultMap">
+		SELECT
+			<include refid="Base_Column_List" />
+		FROM
+			carexx_care_service
+		WHERE
+			service_status = 1
+		ORDER BY
+			create_time desc
+	</select>
+
+	<select id="selectCareServiceCount" parameterType="com.sh.carexx.bean.care.CareServiceFormBean"
+		resultType="java.lang.Integer">
+		SELECT
+			count(1) totalCount
+		FROM
+			carexx_care_service cs
+		<where>
+			<if test="serviceName != null and serviceName != '' ">
+				cs.service_name like CONCAT('%', '${serviceName}', '%')
+			</if>
+			<if test="workTypeId != null and workTypeId != '' ">
+				and cs.work_type_id = #{workTypeId,jdbcType=INTEGER}
+			</if>
+			<if test="serviceStatus != null">
+				and cs.service_status = #{serviceStatus,jdbcType=TINYINT}
+			</if>
+		</where>
+	</select>
+
+	<select id="selectCareServiceList" parameterType="com.sh.carexx.bean.care.CareServiceFormBean"
+		resultType="java.util.Map">
+		SELECT
+			cs.id id,
+			cs.service_name serviceName,
+			cs.work_type_id workTypeId,
+			wt.work_type_name workTypeName,
+			cs.service_name serviceName,
+			cs.service_status serviceStatus,
+			cs.create_time createTime,
+			cs.modify_time modifyTime
+		FROM
+			carexx_care_service cs
+		LEFT JOIN
+			carexx_work_type wt
+		ON
+			wt.id = cs.work_type_id
+		<where>
+			<if test="serviceName != null and serviceName != '' ">
+				cs.service_name like CONCAT('%', '${serviceName}', '%')
+			</if>
+			<if test="workTypeId != null and workTypeId != '' ">
+				and cs.work_type_id = #{workTypeId,jdbcType=INTEGER}
+			</if>
+			<if test="serviceStatus != null">
+				and cs.service_status = #{serviceStatus,jdbcType=TINYINT}
+			</if>
+		</where>
+		ORDER BY
+			cs.create_time DESC
+		LIMIT ${rowIndex}, ${pageSize}
+	</select>
+
+	<insert id="insert" parameterType="com.sh.carexx.model.uc.CareService">
+		INSERT INTO carexx_care_service (
+			work_type_id, service_name,
+			service_status, create_time
+		)
+		VALUES (
+			#{workTypeId,jdbcType=INTEGER}, #{serviceName,jdbcType=VARCHAR},
+			#{serviceStatus,jdbcType=TINYINT}, now()
+		)
+	</insert>
+
+	<update id="update" parameterType="com.sh.carexx.model.uc.CareService">
+		UPDATE
+			carexx_care_service
+		SET
+			work_type_id = #{workTypeId,jdbcType=INTEGER},
+			service_name = #{serviceName,jdbcType=VARCHAR},
+			modify_time = now()
+		WHERE
+			id = #{id,jdbcType=INTEGER}
+	</update>
+
+	<update id="updateServiceStatus" parameterType="com.sh.carexx.model.uc.CareService">
+		UPDATE
+			carexx_care_service
+		SET
+			service_status=#{targetStatus,jdbcType=TINYINT},
+			modify_time = now()
+		WHERE
+			id = #{id,jdbcType=INTEGER} and service_status = #{srcStatus,jdbcType=TINYINT}
+	</update>
+</mapper>

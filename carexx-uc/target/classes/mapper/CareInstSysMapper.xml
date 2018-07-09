@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sh.carexx.uc.dao.CareInstSysMapper">
+	<resultMap id="BaseResultMap" type="com.sh.carexx.model.uc.CareInstSys">
+		<id column="id" jdbcType="INTEGER" property="id" />
+		<result column="inst_id" jdbcType="INTEGER" property="instId" />
+		<result column="inst_sys_name" jdbcType="VARCHAR" property="instSysName" />
+		<result column="inst_sys_status" jdbcType="TINYINT" property="instSysStatus" />
+		<result column="introduce" jdbcType="VARCHAR" property="introduce" />
+		<result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+		<result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		id, inst_id, inst_sys_name, inst_sys_status, introduce,
+		create_time, modify_time
+	</sql>
+	<insert id="insert" parameterType="com.sh.carexx.model.uc.CareInstSys">
+		INSERT INTO carexx_care_inst_sys (
+			inst_id, inst_sys_name, inst_sys_status, introduce,create_time
+		) 
+		VALUES (
+			#{instId,jdbcType=INTEGER},
+			#{instSysName,jdbcType=VARCHAR},
+			#{instSysStatus,jdbcType=TINYINT},
+			#{introduce,jdbcType=VARCHAR},
+			now()
+		)
+	</insert>
+	<select id="selectById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+		SELECT
+			<include refid="Base_Column_List" />
+		FROM
+			carexx_care_inst_sys
+		WHERE id = #{id,jdbcType=INTEGER}
+	</select>
+	<select id="selectByInstSysName" parameterType="com.sh.carexx.bean.care.CareInstSysFormBean" resultMap="BaseResultMap">
+		SELECT
+			<include refid="Base_Column_List" />
+		FROM
+			carexx_care_inst_sys
+		<where>
+			<if test="instId != null and instId > 0 ">
+				inst_id = #{instId,jdbcType=INTEGER}
+			</if>
+			and inst_sys_name = #{instSysName,jdbcType=VARCHAR} 
+		</where>
+	</select>
+	<select id="selectCareInstSysCount" parameterType="com.sh.carexx.bean.care.CareInstSysFormBean" resultType="java.lang.Integer">
+		select
+			count(1) totalCount
+		from
+			carexx_care_inst_sys ccis
+		<where>
+			<if test="instId != null and instId > 0 ">
+				and ccis.inst_id = #{instId,jdbcType=INTEGER}
+			</if>
+			<if test="instSysName != null and instSysName != '' ">
+				and inst_sys_name like CONCAT('%', '${instSysName}', '%')
+			</if>
+			<if test="instSysStatus != null ">
+				and ccis.inst_sys_status = #{instSysStatus,jdbcType=TINYINT}
+			</if>
+		</where>
+	</select>
+	
+	<select id="selectCareInstSysList" parameterType="com.sh.carexx.bean.care.CareInstSysFormBean" resultType="java.util.Map">
+		select
+			ccis.id id, 
+			ccis.inst_id instId, 
+			cci.inst_name instName,
+			ccis.inst_sys_name instSysName, 
+			ccis.inst_sys_status instSysStatus, 
+			ccis.introduce introduce,
+			ccis.create_time createTime, 
+			ccis.modify_time modifyTime
+		from
+			carexx_care_inst_sys ccis
+		LEFT JOIN carexx_care_inst cci ON ccis.inst_id = cci.id
+		<where>
+			<if test="instId != null and instId > 0 ">
+				and ccis.inst_id = #{instId,jdbcType=INTEGER}
+			</if>
+			<if test="instSysName != null and instSysName != '' ">
+				and inst_sys_name like CONCAT('%', '${instSysName}', '%')
+			</if>
+			<if test="instSysStatus != null ">
+				and ccis.inst_sys_status = #{instSysStatus,jdbcType=TINYINT}
+			</if>
+		</where>
+		ORDER BY ccis.create_time DESC
+		limit ${rowIndex}, ${pageSize}
+	</select>
+
+	<select id="selectAllCareInstSys" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+		SELECT
+			*
+		FROM
+			carexx_care_inst_sys
+		<where>
+			inst_sys_status = 1
+			<if test="instId != null and instId > 0 ">
+				and inst_id = #{instId,jdbcType=INTEGER}
+			</if>
+		</where>
+		ORDER BY create_time DESC
+	</select>
+	
+	<update id="updateStatus">
+		UPDATE
+			carexx_care_inst_sys
+		SET
+			inst_sys_status = #{targetStatus,jdbcType=TINYINT},
+			modify_time = now()
+		WHERE
+			id = #{id,jdbcType=INTEGER} and inst_sys_status = #{srcStatus,jdbcType=TINYINT}
+	</update>
+
+</mapper>

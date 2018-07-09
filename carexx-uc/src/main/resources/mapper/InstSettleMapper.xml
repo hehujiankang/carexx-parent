@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sh.carexx.uc.dao.InstSettleMapper">
+	<resultMap id="BaseResultMap" type="com.sh.carexx.model.uc.InstSettle">
+		<id column="id" jdbcType="BIGINT" property="id" />
+		<result column="inst_id" jdbcType="INTEGER" property="instId" />
+		<result column="settle_date" jdbcType="DATE" property="settleDate" />
+		<result column="settle_status" jdbcType="TINYINT" property="settleStatus" />
+		<result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+		<result column="creator" jdbcType="VARCHAR" property="creator" />
+		<result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
+		<result column="modifier" jdbcType="VARCHAR" property="modifier" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		id, inst_id, settle_date, settle_status, create_time, creator,
+		modify_time, modifier
+	</sql>
+	
+	<select id="selectById" resultMap="BaseResultMap">
+		SELECT
+			<include refid="Base_Column_List" />
+		FROM
+			carexx_inst_settle
+		WHERE
+			id = #{id,jdbcType=BIGINT}
+	</select>
+	
+	<select id="selectAllBySettleStatus" resultMap="BaseResultMap">
+		SELECT
+			<include refid="Base_Column_List" />
+		FROM
+			carexx_inst_settle
+		<where>
+			settle_status = 1
+			<if test="settleDate != null">
+			and settle_date <![CDATA[<]]> DATE_FORMAT(#{settleDate,jdbcType=DATE},<![CDATA['%Y-%m-%d']]>)
+			</if>
+			<if test="instId != null and instId > 0">
+				and inst_id = #{instId,jdbcType=INTEGER}
+			</if>
+			
+		</where>
+	</select>
+	<select id="selectBySettleDate" resultType="java.util.Date">
+		SELECT
+			MAX(settle_date) settleDate
+		FROM
+			carexx_inst_settle
+		<where>
+			<if test="settleDate != null">
+			settle_date <![CDATA[<]]> DATE_FORMAT(#{settleDate,jdbcType=DATE},<![CDATA['%Y-%m-%d']]>)
+			</if>
+			<if test="instId != null and instId > 0">
+				and inst_id = #{instId,jdbcType=INTEGER}
+			</if>
+		</where>
+	</select>
+	<select id="selectMaxSettleDateBySettleStatus" resultType="java.util.Date">
+		SELECT
+			MAX(settle_date) settleDate
+		FROM
+			carexx_inst_settle
+		<where> 
+			settle_status = 1
+			<if test="instId != null and instId > 0">
+				and inst_id = #{instId,jdbcType=INTEGER}
+			</if>
+		</where>
+	</select>
+	
+	<select id="selectInstSettleCount" parameterType="com.sh.carexx.bean.order.InstSettleQueryFormBean" resultType="java.lang.Integer">
+		SELECT
+			count(1) totalCount
+		FROM 
+			carexx_inst_settle
+		<where>
+			<if test="instId != null and instId > 0">
+				and inst_id = #{instId,jdbcType=INTEGER}
+			</if>
+			<if test="settleStartDate != null and settleStartDate != ''">
+				and DATE_FORMAT(settle_date ,<![CDATA['%Y-%m-%d']]>) <![CDATA[>]]> DATE_FORMAT(#{settleStartDate},<![CDATA['%Y-%m-%d']]>)
+			</if>
+			<if test="settleEndDate != null and settleEndDate != ''">
+				and DATE_FORMAT(settle_date ,<![CDATA['%Y-%m-%d']]>) <![CDATA[<]]> DATE_FORMAT(#{settleEndDate},<![CDATA['%Y-%m-%d']]>)
+			</if>
+			<if test="settleStatus != null">
+				and settle_status = #{settleStatus,jdbcType=TINYINT}
+			</if>
+		</where>
+	</select>
+	
+	<select id="selectInstSettleList" parameterType="com.sh.carexx.bean.order.InstSettleQueryFormBean" resultType="java.util.Map">
+		SELECT
+			id, inst_id instId, settle_date settleDate, settle_status settleStatus,
+			 create_time createTime, creator,modify_time modifyTime, modifier
+		FROM 
+			carexx_inst_settle
+		<where>
+			<if test="instId != null and instId > 0">
+				and inst_id = #{instId,jdbcType=INTEGER}
+			</if>
+			<if test="settleStartDate != null and settleStartDate != ''">
+				and DATE_FORMAT(settle_date ,<![CDATA['%Y-%m-%d']]>) <![CDATA[>]]> DATE_FORMAT(#{settleStartDate,jdbcType=DATE},<![CDATA['%Y-%m-%d']]>)
+			</if>
+			<if test="settleEndDate != null and settleEndDate != ''">
+				and DATE_FORMAT(settle_date ,<![CDATA['%Y-%m-%d']]>) <![CDATA[<]]> DATE_FORMAT(#{settleEndDate,jdbcType=DATE},<![CDATA['%Y-%m-%d']]>)
+			</if>
+			<if test="settleStatus != null">
+				and settle_status = #{settleStatus,jdbcType=TINYINT}
+			</if>
+		</where>
+		ORDER BY create_time DESC
+		limit ${rowIndex}, ${pageSize}
+	</select>
+
+	<insert id="insert" parameterType="com.sh.carexx.model.uc.InstSettle">
+		INSERT INTO carexx_inst_settle (
+			inst_id, 
+			settle_date,
+			settle_status, 
+			create_time, 
+			creator
+		)
+		VALUES (
+				#{instId,jdbcType=INTEGER}, 
+				#{settleDate,jdbcType=DATE},
+				#{settleStatus,jdbcType=TINYINT}, 
+				now(),
+				#{creator,jdbcType=VARCHAR}
+			)
+	</insert>
+	
+	<update id="updateStatus">
+		UPDATE
+			carexx_inst_settle
+		SET
+			settle_status = #{targetStatus,jdbcType=TINYINT},
+			modifier = #{modifier,jdbcType=VARCHAR},
+			modify_time = now()
+		WHERE
+			id = #{id,jdbcType=BIGINT} and settle_status = #{srcStatus,jdbcType=TINYINT}
+	</update>
+</mapper>

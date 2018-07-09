@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sh.carexx.uc.dao.InstCustomerMapper">
+	<resultMap id="BaseResultMap" type="com.sh.carexx.model.uc.InstCustomer">
+		<id column="id" jdbcType="INTEGER" property="id" />
+		<result column="inst_id" jdbcType="INTEGER" property="instId" />
+		<result column="user_id" jdbcType="INTEGER" property="userId" />
+		<result column="real_name" jdbcType="VARCHAR" property="realName" />
+		<result column="id_no" jdbcType="CHAR" property="idNo" />
+		<result column="sex" jdbcType="TINYINT" property="sex" />
+		<result column="birthday" jdbcType="DATE" property="birthday" />
+		<result column="phone" jdbcType="VARCHAR" property="phone" />
+		<result column="address" jdbcType="VARCHAR" property="address" />
+		<result column="customer_status" jdbcType="TINYINT" property="customerStatus" />
+		<result column="linkman" jdbcType="VARCHAR" property="linkman" />
+		<result column="linkman_phone" jdbcType="VARCHAR" property="linkmanPhone" />
+		<result column="linkman_relationship" jdbcType="TINYINT"
+			property="linkmanRelationship" />
+		<result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+		<result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		id, inst_id, user_id, real_name, id_no, sex, birthday, phone, address,
+		customer_status, linkman,
+		linkman_phone, linkman_relationship, create_time, modify_time
+	</sql>
+	
+	<select id="selectCustomerExistence" resultMap="BaseResultMap">
+		SELECT
+			<include refid="Base_Column_List" />
+		FROM
+			carexx_inst_customer
+		WHERE
+			inst_id = #{instId,jdbcType=INTEGER}
+			and user_id = #{userId,jdbcType=INTEGER}
+			and real_name = #{realName,jdbcType=VARCHAR}
+	</select>
+
+	<select id="selectInstCustomerCount" parameterType="com.sh.carexx.bean.customer.InstCustomerFormBean"
+		resultType="java.lang.Integer">
+		SELECT
+			count(1) totalCount
+		FROM
+			carexx_inst_customer ic
+		<where>
+			customer_status = 1
+			<if test="instId != null and instId > 0">
+				and ic.inst_id = #{instId,jdbcType=CHAR}
+			</if>
+			<if test="realName != null and realName != '' ">
+				and ic.real_name like CONCAT('%', '${realName}', '%')
+			</if>
+			<if test="idNo != null and idNo != '' ">
+				and ic.id_no = #{idNo,jdbcType=CHAR}
+			</if>
+			<if test="phone != null and phone != '' ">
+				and ic.phone = #{phone,jdbcType=VARCHAR}
+			</if>
+		</where>
+	</select>
+
+	<select id="selectInstCustomerList" parameterType="com.sh.carexx.bean.customer.InstCustomerFormBean"
+		resultType="java.util.Map">
+		SELECT
+			ic.id id,
+			ic.inst_id instId,
+			ic.user_id userId,
+			ci.inst_name instName,
+			ic.real_name realName,
+			ic.id_no idNo,
+			ic.sex sex,
+			ic.birthday birthday,
+			ic.phone phone,
+			ic.address address,
+			ic.customer_status customerStatus,
+			ic.linkman linkman,
+			ic.linkman_phone linkmanPhone,
+			ic.linkman_relationship linkmanRelationship,
+			ic.create_time createTime,
+			ic.modify_time modifyTime
+		FROM
+			carexx_inst_customer ic
+		LEFT JOIN
+			carexx_care_inst ci
+		ON
+			ci.id = ic.inst_id
+		<where>
+				customer_status = 1
+			<if test="instId != null and instId > 0">
+				and ic.inst_id = #{instId,jdbcType=CHAR}
+			</if>
+			<if test="realName != null and realName != '' ">
+				and ic.real_name like CONCAT('%', '${realName}', '%')
+			</if>
+			<if test="idNo != null and idNo != '' ">
+				and ic.id_no = #{idNo,jdbcType=CHAR}
+			</if>
+			<if test="phone != null and phone != '' ">
+				and ic.phone = #{phone,jdbcType=VARCHAR}
+			</if>
+		</where>
+		ORDER BY
+			ic.create_time DESC
+		LIMIT ${rowIndex}, ${pageSize}
+	</select>
+
+	<insert id="insert" parameterType="com.sh.carexx.model.uc.InstCustomer" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO carexx_inst_customer (
+			inst_id, user_id, real_name,
+			id_no, sex, birthday, phone,
+			address, customer_status, linkman,
+			linkman_phone, linkman_relationship, create_time
+		)
+		VALUES (
+			#{instId,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER}, #{realName,jdbcType=VARCHAR},
+			#{idNo,jdbcType=CHAR}, #{sex,jdbcType=TINYINT}, #{birthday,jdbcType=DATE},
+			#{phone,jdbcType=VARCHAR},
+			#{address,jdbcType=VARCHAR}, #{customerStatus,jdbcType=TINYINT}, #{linkman,jdbcType=VARCHAR},
+			#{linkmanPhone,jdbcType=VARCHAR},
+			#{linkmanRelationship,jdbcType=TINYINT}, now()
+		)
+	</insert>
+
+
+	<update id="update" parameterType="com.sh.carexx.model.uc.InstCustomer">
+		UPDATE
+			carexx_inst_customer
+		SET
+			inst_id = #{instId,jdbcType=INTEGER},
+			real_name = #{realName,jdbcType=VARCHAR},
+			id_no = #{idNo,jdbcType=CHAR},
+			sex = #{sex,jdbcType=TINYINT},
+			birthday = #{birthday,jdbcType=DATE},
+			phone = #{phone,jdbcType=VARCHAR},
+			address = #{address,jdbcType=VARCHAR},
+			linkman = #{linkman,jdbcType=VARCHAR},
+			linkman_phone = #{linkmanPhone,jdbcType=VARCHAR},
+			linkman_relationship = #{linkmanRelationship,jdbcType=TINYINT},
+			modify_time = now()
+		WHERE
+			id = #{id,jdbcType=INTEGER}
+	</update>
+
+	<update id="delete">
+		UPDATE
+			carexx_inst_customer
+		SET
+			customer_status = 0,
+			modify_time = now()
+		WHERE
+			id = #{id,jdbcType=INTEGER} and customer_status > 0
+	</update>
+</mapper>

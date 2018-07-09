@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sh.carexx.uc.dao.InstInpatientAreaMapper" >
+  <resultMap id="BaseResultMap" type="com.sh.carexx.model.uc.InstInpatientArea" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="inst_id" property="instId" jdbcType="INTEGER" />
+    <result column="inpatient_area" property="inpatientArea" jdbcType="VARCHAR" />
+    <result column="area_status" property="areaStatus" jdbcType="TINYINT" />
+    <result column="introduce" property="introduce" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="modify_time" property="modifyTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, inst_id, inpatient_area, area_status, create_time, modify_time
+  </sql>
+  <select id="selectById" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from carexx_inst_inpatient_area
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectByInpatientArea" parameterType="com.sh.carexx.bean.care.InstInpatientAreaFormBean" resultMap="BaseResultMap">
+  	select 
+    	<include refid="Base_Column_List" />
+    from 
+    	carexx_inst_inpatient_area
+    where 
+    	inst_id = #{instId,jdbcType=INTEGER} 
+    	and inpatient_area  = #{inpatientArea,jdbcType=VARCHAR}
+    	and area_status = 1
+  </select>
+  <insert id="insert" parameterType="com.sh.carexx.model.uc.InstInpatientArea">
+		INSERT INTO carexx_inst_inpatient_area (
+			inst_id, inpatient_area, area_status, introduce, create_time
+		)
+		VALUES (
+			#{instId,jdbcType=INTEGER},
+			#{inpatientArea,jdbcType=VARCHAR},
+			#{areaStatus,jdbcType=TINYINT},
+			#{introduce,jdbcType=VARCHAR},
+			now()
+		)
+	</insert>
+	
+	<select id="selectInstInpatientAreaCount" parameterType="com.sh.carexx.bean.care.InstInpatientAreaFormBean" resultType="java.lang.Integer">
+		SELECT
+			count(1) totalCount
+		FROM
+			carexx_inst_inpatient_area 
+		<where>
+			area_status = 1
+			<if test="instId != null and instId > 0">
+				and inst_id = #{instId,jdbcType=INTEGER}
+			</if>
+			<if test="inpatientArea != null and inpatientArea != '' ">
+				and inpatient_area like CONCAT('%', '${inpatientArea}', '%')
+			</if>
+		</where>
+	</select>
+	<select id="selectInstInpatientAreaList" parameterType="com.sh.carexx.bean.care.InstInpatientAreaFormBean" resultType="java.util.Map">
+		SELECT
+			iia.id, 
+			iia.inst_id instId, 
+			cci.inst_name instName,
+			iia.inpatient_area inpatientArea, 
+			iia.area_status areaStatus, 
+			iia.introduce introduce,
+			iia.create_time createTime, 
+			iia.modify_time modifyTime
+		FROM
+			carexx_inst_inpatient_area iia
+		LEFT JOIN carexx_care_inst cci ON iia.inst_id = cci.id
+		<where>
+			iia.area_status = 1
+			<if test="instId != null and instId > 0">
+				and iia.inst_id = #{instId,jdbcType=INTEGER}
+			</if>
+			<if test="inpatientArea != null and inpatientArea != '' ">
+				and iia.inpatient_area like CONCAT('%', '${inpatientArea}', '%')
+			</if>
+		</where>
+		ORDER BY iia.create_time DESC
+		limit ${rowIndex}, ${pageSize}
+	</select>
+	<select id="selectAllInstInpatientArea" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+		SELECT
+			<include refid="Base_Column_List" />
+		FROM
+			carexx_inst_inpatient_area
+		<where>
+			area_status = 1
+			<if test="instId != null and instId > 0 ">
+				and inst_id = #{instId,jdbcType=INTEGER}
+			</if>
+		</where>
+		ORDER BY create_time DESC
+	</select>
+	<update id="update" parameterType="com.sh.carexx.model.uc.InstInpatientArea">
+		UPDATE
+			carexx_inst_inpatient_area
+		SET
+			inpatient_area = #{inpatientArea,jdbcType=VARCHAR},
+			introduce = #{introduce,jdbcType=VARCHAR},
+			modify_time = now()
+		WHERE
+			id = #{id,jdbcType=INTEGER} and area_status = 1
+	</update>
+	<update id="delete">
+		UPDATE 
+			carexx_inst_inpatient_area
+		SET 
+			area_status = 0,
+		 	modify_time = now()
+		WHERE
+			id = #{id,jdbcType=INTEGER} and area_status = 1
+	</update>
+</mapper>

@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sh.carexx.uc.dao.InstHolidayMapper">
+	<resultMap id="BaseResultMap" type="com.sh.carexx.model.uc.InstHoliday">
+		<id column="id" jdbcType="BIGINT" property="id" />
+		<result column="inst_id" jdbcType="INTEGER" property="instId" />
+		<result column="holiday_name" jdbcType="VARCHAR" property="holidayName" />
+		<result column="holiday_start_time" jdbcType="DATE" property="holidayStartTime" />
+		<result column="holiday_end_time" jdbcType="DATE" property="holidayEndTime" />
+		<result column="holiday_status" jdbcType="TINYINT" property="holidayStatus" />
+		<result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+		<result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		id, inst_id, holiday_name, holiday_start_time, holiday_end_time,
+		holiday_status,
+		create_time, modify_time
+	</sql>
+	<select id="selectById" parameterType="java.lang.Long"
+		resultMap="BaseResultMap">
+		select
+			<include refid="Base_Column_List" />
+		from 
+			carexx_inst_holiday
+		where 
+			id = #{id,jdbcType=BIGINT} and holiday_status = 1
+	</select>
+	<select id="selectByScheduleDate" resultMap="BaseResultMap">
+		select
+			<include refid="Base_Column_List" />
+		from 
+			carexx_inst_holiday
+		where 
+			inst_id = #{instId,jdbcType=INTEGER} 
+			and holiday_start_time <![CDATA[<=]]> #{scheduleDate,jdbcType=DATE} 
+			and holiday_end_time <![CDATA[>=]]> #{scheduleDate,jdbcType=DATE}
+			and holiday_status = 1
+	</select>
+	<select id="selectByExistence" parameterType="com.sh.carexx.bean.holiday.InstHolidayFormBean" resultMap="BaseResultMap">
+		SELECT
+			*
+		FROM
+			carexx_inst_holiday
+		WHERE
+			inst_id = #{instId,jdbcType=INTEGER} and holiday_status = 1
+			and (
+					(holiday_start_time <![CDATA[>=]]> #{holidayStartTime,jdbcType=DATE} AND holiday_start_time <![CDATA[<=]]> #{holidayEndTime,jdbcType=DATE}) OR  
+					(holiday_start_time <![CDATA[<=]]> #{holidayStartTime,jdbcType=DATE} AND holiday_end_time <![CDATA[>=]]> #{holidayEndTime,jdbcType=DATE}) OR  
+					(holiday_end_time <![CDATA[>=]]> #{holidayStartTime,jdbcType=DATE} AND holiday_end_time <![CDATA[<=]]> #{holidayEndTime,jdbcType=DATE})
+				)
+	
+	</select>
+	<insert id="insert" parameterType="com.sh.carexx.model.uc.InstHoliday">
+		INSERT INTO carexx_inst_holiday (
+			inst_id, holiday_name, holiday_start_time, holiday_end_time,
+			holiday_status, create_time
+		)
+		VALUES (
+			#{instId,jdbcType=INTEGER},
+			#{holidayName,jdbcType=VARCHAR},
+			#{holidayStartTime,jdbcType=DATE},
+			#{holidayEndTime,jdbcType=DATE},
+			#{holidayStatus,jdbcType=TINYINT},
+			now()
+		)
+	</insert>
+	
+	
+	<select id="selectInstHolidayCount" parameterType="com.sh.carexx.bean.holiday.InstHolidayFormBean" resultType="java.lang.Integer">
+		SELECT
+			count(1) totalCount
+		FROM
+			carexx_inst_holiday 
+		<where>
+			holiday_status = 1
+			<if test="instId != null and instId > 0">
+				and inst_id = #{instId,jdbcType=INTEGER}
+			</if>
+			<if test="holidayName != null and holidayName != '' ">
+				and holiday_name like CONCAT('%', '${holidayName}', '%')
+			</if>
+		</where>
+	</select>
+	<select id="selectInstHolidayList" parameterType="com.sh.carexx.bean.holiday.InstHolidayFormBean" resultType="java.util.Map">
+		SELECT
+			cih.id id,
+			cih.inst_id instId, 
+			cih.holiday_name holidayName, 
+			cih.holiday_start_time holidayStartTime, 
+			cih.holiday_end_time holidayEndTime,
+			cih.holiday_status holidayStatus, 
+			cih.create_time createTime,
+			cih.modify_time modifyTime
+		FROM
+			carexx_inst_holiday cih
+		LEFT JOIN carexx_care_inst cci ON cih.inst_id = cci.id
+		<where>
+			cih.holiday_status = 1
+			<if test="instId != null and instId > 0">
+				and cih.inst_id = #{instId,jdbcType=INTEGER}
+			</if>
+			<if test="holidayName != null and holidayName != '' ">
+				and cih.holiday_name like CONCAT('%', '${holidayName}', '%')
+			</if>
+		</where>
+		ORDER BY cih.create_time DESC
+		limit ${rowIndex}, ${pageSize}
+	</select>
+	<update id="update" parameterType="com.sh.carexx.model.uc.InstHoliday">
+		UPDATE
+			carexx_inst_holiday
+		SET
+			holiday_name = #{holidayName,jdbcType=VARCHAR},
+			holiday_start_time = #{holidayStartTime,jdbcType=DATE},
+			holiday_end_time = #{holidayEndTime,jdbcType=DATE},
+			modify_time = now()
+		WHERE
+			id = #{id,jdbcType=BIGINT} and holiday_status = 1
+	</update>
+	<update id="delete">
+		UPDATE 
+			carexx_inst_holiday
+		SET 
+			holiday_status = 0,
+		 	modify_time = now()
+		WHERE
+			id = #{id,jdbcType=BIGINT} and holiday_status = 1
+	</update>
+</mapper>

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sh.carexx.uc.dao.DictDataMapper">
+	<resultMap id="BaseResultMap" type="com.sh.carexx.model.uc.DictData">
+		<id column="id" jdbcType="INTEGER" property="id" />
+		<result column="dict_id" jdbcType="INTEGER" property="dictId" />
+		<result column="dict_data_name" jdbcType="VARCHAR" property="dictDataName" />
+		<result column="dict_data_value" jdbcType="VARCHAR" property="dictDataValue" />
+		<result column="is_fixed" jdbcType="BIT" property="isFixed" />
+		<result column="dict_data_status" jdbcType="TINYINT" property="dictDataStatus" />
+		<result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+		<result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		id, dict_id, dict_data_name, dict_data_value, is_fixed,
+		dict_data_status,create_time,modify_time
+	</sql>
+	<select id="selectAllAvailableByDictId" parameterType="com.sh.carexx.bean.dict.DictDataFormBean"
+		resultMap="BaseResultMap">
+		SELECT
+			<include refid="Base_Column_List" />
+		FROM 
+			carexx_dict_data
+		WHERE
+			dict_id = #{dictId,jdbcType=INTEGER} and dict_data_status=1
+	</select>
+
+	<select id="selectDictDataCount" parameterType="com.sh.carexx.bean.dict.DictDataFormBean"
+		resultType="java.lang.Integer">
+		SELECT
+			count(1) totalCount
+		FROM
+			carexx_dict_data
+		<where>
+			dict_id = #{dictId,jdbcType=INTEGER}
+			<if test="dictDataName != null and dictDataName != ''">
+				and dict_data_name like CONCAT('%', '${dictDataName}', '%')
+			</if>
+			<if test="dictDataStatus != null">
+				and dict_data_status = #{dictDataStatus,jdbcType=TINYINT}
+			</if>
+		</where>
+	</select>
+
+	<select id="selectDictDataList" parameterType="com.sh.carexx.bean.dict.DictDataFormBean"
+		resultMap="BaseResultMap">
+		SELECT
+			<include refid="Base_Column_List" />
+		FROM
+			carexx_dict_data
+		<where>
+			dict_id = #{dictId,jdbcType=INTEGER}
+			<if test="dictDataName != null and dictDataName != ''">
+				and dict_data_name like CONCAT('%', '${dictDataName}', '%')
+			</if>
+			<if test="dictDataStatus != null">
+				and dict_data_status = #{dictDataStatus,jdbcType=TINYINT}
+			</if>
+		</where>
+		ORDER BY
+			create_time DESC
+		LIMIT ${rowIndex}, ${pageSize}
+	</select>
+
+	<update id="update" parameterType="com.sh.carexx.model.uc.DictData">
+		UPDATE
+			carexx_dict_data
+		SET
+			dict_data_name = #{dictDataName,jdbcType=VARCHAR},
+			dict_data_value = #{dictDataValue,jdbcType=VARCHAR},
+			modify_time = now()
+		WHERE
+			id=#{id,jdbcType=INTEGER} and is_fixed = 0
+	</update>
+
+	<insert id="insert" parameterType="com.sh.carexx.model.uc.DictData">
+		INSERT INTO carexx_dict_data (
+			dict_id, dict_data_name, dict_data_value, is_fixed,
+			dict_data_status,create_time
+		)
+		VALUES (
+			#{dictId,jdbcType=INTEGER},
+			#{dictDataName,jdbcType=VARCHAR},
+			#{dictDataValue,jdbcType=VARCHAR},
+			#{isFixed,jdbcType=BIT},
+			#{dictDataStatus,jdbcType=TINYINT},
+			now()
+		)
+	</insert>
+
+	<update id="updateStatus">
+		UPDATE
+			carexx_dict_data
+		SET
+			dict_data_status = #{targetStatus,jdbcType=TINYINT},
+			modify_time = now()
+		WHERE
+			id = #{id,jdbcType=INTEGER} and dict_data_status = #{srcStatus,jdbcType=TINYINT}
+	</update>
+</mapper>

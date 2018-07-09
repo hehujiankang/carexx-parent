@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sh.carexx.uc.dao.CustomerPatientMapper">
+	<resultMap id="BaseResultMap" type="com.sh.carexx.model.uc.CustomerPatient">
+		<id column="id" jdbcType="BIGINT" property="id" />
+		<result column="customer_id" jdbcType="INTEGER" property="customerId" />
+		<result column="patient_name" jdbcType="VARCHAR" property="patientName" />
+		<result column="phone" jdbcType="VARCHAR" property="phone" />
+		<result column="address" jdbcType="VARCHAR" property="address" />
+		<result column="patient_status" jdbcType="TINYINT" property="patientStatus" />
+		<result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+		<result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		id, customer_id, patient_name, phone, address, patient_status,
+		create_time, modify_time
+	</sql>
+	<select id="selectById" parameterType="java.lang.Long"
+		resultMap="BaseResultMap">
+		select
+			<include refid="Base_Column_List" />
+		from 
+			carexx_customer_patient
+		where patient_status = 1 and id = #{id,jdbcType=BIGINT}  and customer_id = #{customerId,jdbcType=INTEGER}
+	</select>
+	<select id="selectCustomerPatientCount" parameterType="com.sh.carexx.bean.customer.CustomerPatientFormBean" resultType="java.lang.Integer">
+		SELECT
+				count(1) totalCount
+			FROM
+				carexx_customer_patient
+		<where>
+			patient_status = 1
+			<if test="patientName != null and patientName != '' ">
+				and patient_name like CONCAT('%', '${patientName}', '%')
+			</if>
+			<if test="customerId != null and customerId > 0">
+				and customer_id = #{customerId,jdbcType=INTEGER}
+			</if>
+		</where>
+	</select>
+	<select id="selectCustomerPatientList" parameterType="com.sh.carexx.bean.customer.CustomerPatientFormBean" resultType="java.util.Map">
+		SELECT
+			ccp.id id, 
+			ccp.customer_id customerId, 
+			cic.real_name realName,
+			ccp.patient_name patientName, 
+			ccp.phone phone,
+			ccp.address address, 
+			ccp.patient_status patientStatus, 
+			ccp.create_time createTime, 
+			ccp.modify_time modifyTime
+		FROM
+			carexx_customer_patient ccp
+		LEFT JOIN carexx_inst_customer cic ON ccp.customer_id = cic.id
+		<where>
+			patient_status = 1
+			<if test="patientName != null and patientName != '' ">
+				and ccp.patient_name like CONCAT('%', '${patientName}', '%')
+			</if>
+			<if test="customerId != null and customerId > 0">
+				and ccp.customer_id = #{customerId,jdbcType=INTEGER}
+			</if>
+		</where>
+		ORDER BY createTime DESC
+		LIMIT ${rowIndex}, ${pageSize}
+	</select>
+	<insert id="insert" parameterType="com.sh.carexx.model.uc.CustomerPatient" >
+		insert into carexx_customer_patient (
+			customer_id, patient_name, phone, address, patient_status,create_time
+		)
+		values (
+			#{customerId,jdbcType=INTEGER},
+			#{patientName,jdbcType=VARCHAR},
+			#{phone,jdbcType=VARCHAR},
+			#{address,jdbcType=VARCHAR},
+			#{patientStatus,jdbcType=TINYINT},
+			now()
+		)
+	</insert>
+	
+	<update id="update" parameterType="com.sh.carexx.model.uc.CustomerPatient">
+		update
+			carexx_customer_patient
+		set
+			patient_name = #{patientName,jdbcType=VARCHAR},
+			phone = #{phone,jdbcType=VARCHAR},
+			address = #{address,jdbcType=VARCHAR},
+			modify_time = now()
+		where patient_status = 1 and id = #{id,jdbcType=BIGINT} and customer_id = #{customerId,jdbcType=INTEGER}
+	</update>
+	<update id="delete" parameterType="java.util.Map">
+		update
+			carexx_customer_patient
+		set
+			patient_status = 0,
+			modify_time = now()
+		where
+			patient_status = 1 and id = #{id,jdbcType=BIGINT} and customer_id = #{customerId,jdbcType=INTEGER}	
+	</update>
+</mapper>

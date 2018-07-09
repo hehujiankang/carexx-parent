@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sh.carexx.uc.dao.AclRoleMenuOperMapper">
+	<resultMap id="BaseResultMap" type="com.sh.carexx.model.uc.AclRoleMenuOper">
+		<id column="id" jdbcType="INTEGER" property="id" />
+		<result column="role_id" jdbcType="INTEGER" property="roleId" />
+		<result column="menu_id" jdbcType="INTEGER" property="menuId" />
+		<result column="oper_id" jdbcType="INTEGER" property="operId" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		id, role_id, menu_id, oper_id
+	</sql>
+	<select id="selectByRoleId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+		select
+			<include refid="Base_Column_List" />
+		from 
+			carexx_acl_role_menu_oper
+		where 
+			role_id = #{roleId,jdbcType=INTEGER}
+	</select>
+	<select id="selectOperByRoleId" parameterType="java.lang.Integer" resultType="java.lang.String">
+		SELECT
+			mo.oper_code
+		FROM
+			carexx_acl_role_menu_oper rmo
+		LEFT JOIN carexx_acl_menu_oper mo ON rmo.oper_id = mo.id
+		WHERE
+			rmo.role_id = #{roleId,jdbcType=INTEGER}
+			AND mo.`status` = 1
+	</select>
+	<delete id="deleteByRoleId" parameterType="java.lang.Integer">
+		delete from 
+			carexx_acl_role_menu_oper
+		where 
+			role_id = #{roleId,jdbcType=INTEGER}
+	</delete>
+	<insert id="batchInsert" useGeneratedKeys="true" keyProperty="id" parameterType="java.util.List">
+		insert into carexx_acl_role_menu_oper (
+			role_id, menu_id, oper_id
+		)
+		<foreach collection="list" item="item" index="index" open="" close="" separator="union all">
+			select
+				#{item.roleId,jdbcType=INTEGER}, #{item.menuId,jdbcType=INTEGER}, #{item.operId,jdbcType=INTEGER}
+		</foreach>
+	</insert>
+</mapper>

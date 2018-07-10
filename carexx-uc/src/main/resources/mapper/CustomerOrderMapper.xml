@@ -179,6 +179,7 @@
 		LEFT JOIN carexx_order_settle os ON cos.id = os.schedule_id
 		<where>
 			co.order_status != 2
+			
 			<if test="instId != null and instId > 0">
 				and co.inst_id = #{instId,jdbcType=INTEGER}
 			</if>

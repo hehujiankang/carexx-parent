@@ -1367,7 +1367,7 @@ public interface UCServiceClient {
 	 * 
 	 * deleteInstInpatientArea:(病区删除). <br/> 
 	 * 
-	 * @author zhoulei 
+	 * @author zhoulei  
 	 * @param id
 	 * @return 
 	 * @since JDK 1.8

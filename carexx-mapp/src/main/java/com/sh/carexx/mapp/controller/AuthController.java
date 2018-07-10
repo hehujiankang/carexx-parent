@@ -6,6 +6,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -21,6 +22,9 @@ import com.sh.carexx.mapp.wechat.WechatManager;
 @RequestMapping("/auth")
 public class AuthController extends BaseController {
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
+
+	@Value("${spring.application.domain}")
+	private String domain;
 
 	@Autowired
 	private WechatManager wechatManager;
@@ -59,6 +63,6 @@ public class AuthController extends BaseController {
 		} catch (BizException e) {
 			this.logger.error("微信登录失败", e);
 		}
-		return "redirect:/#/tab/wechat/home?token=" + token + "&openId=" + openId;
+		return "redirect:" + this.domain + "/index.html#/tab/wechat/home?token=" + token + "&openId=" + openId;
 	}
 }

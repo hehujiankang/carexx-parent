@@ -168,9 +168,12 @@ public class CustomerOrderManager {
 		customerOrder.setServiceEndTime(serviceEndTime);
 		customerOrder.setOrderAmt(this.calcServiceFee(customerOrder.getInstId(), customerOrder.getServiceId(),
 				customerOrder.getServiceStartTime(), customerOrder.getServiceEndTime()));
+		int hourNum = DateUtils.getHourDiff(serviceStartTime, serviceEndTime);
+		BigDecimal dayNum = (new BigDecimal(hourNum).divide(new BigDecimal(24), 1, BigDecimal.ROUND_HALF_UP)).stripTrailingZeros();
 		BigDecimal servicePrice = instCareServiceService
 				.queryServicePrice(customerOrder.getInstId(), customerOrder.getServiceId()).getServicePrice();
-		BigDecimal holiday = customerOrder.getOrderAmt().divide(servicePrice, 1, BigDecimal.ROUND_HALF_UP).stripTrailingZeros();
+		BigDecimal normalDay = (customerOrder.getOrderAmt().divide(servicePrice, 1, BigDecimal.ROUND_HALF_UP)).stripTrailingZeros();
+		BigDecimal holiday = (normalDay.subtract(dayNum)).stripTrailingZeros();
 		customerOrder.setHoliday(holiday);
 		customerOrder.setAdjustAmt(new BigDecimal(0));
 		customerOrder.setOperator(customerOrderFormBean.getOperator());
@@ -257,9 +260,12 @@ public class CustomerOrderManager {
 		customerOrder.setServiceEndTime(serviceEndTime);
 		customerOrder.setOrderAmt(this.calcServiceFee(customerOrder.getInstId(), customerOrder.getServiceId(),
 				customerOrder.getServiceStartTime(), customerOrder.getServiceEndTime()));
+		int hourNum = DateUtils.getHourDiff(serviceStartTime, serviceEndTime);
+		BigDecimal dayNum = (new BigDecimal(hourNum).divide(new BigDecimal(24), 1, BigDecimal.ROUND_HALF_UP)).stripTrailingZeros();
 		BigDecimal servicePrice = instCareServiceService
 				.queryServicePrice(customerOrder.getInstId(), customerOrder.getServiceId()).getServicePrice();
-		BigDecimal holiday = customerOrder.getOrderAmt().divide(servicePrice, 1, BigDecimal.ROUND_HALF_UP).stripTrailingZeros();
+		BigDecimal normalDay = (customerOrder.getOrderAmt().divide(servicePrice, 1, BigDecimal.ROUND_HALF_UP)).stripTrailingZeros();
+		BigDecimal holiday = (normalDay.subtract(dayNum)).stripTrailingZeros();
 		customerOrder.setHoliday(holiday);
 		customerOrder.setAdjustAmt(new BigDecimal(0));
 		customerOrder.setOrderStatus(OrderStatus.WAIT_SCHEDULE.getValue());
@@ -348,8 +354,7 @@ public class CustomerOrderManager {
 	@Transactional(propagation = Propagation.REQUIRED, rollbackFor = BizException.class)
 	public void adjust(CustomerOrderAdjustFormBean customerOrderAdjustFormBean) throws BizException {
 		BigDecimal adjustAmt = new BigDecimal(customerOrderAdjustFormBean.getAdjustAmt());
-		CustomerOrder customerOrder = this.customerOrderService
-				.getByOrderNo(customerOrderAdjustFormBean.getOrderNo());
+		CustomerOrder customerOrder = this.customerOrderService.getByOrderNo(customerOrderAdjustFormBean.getOrderNo());
 		if (customerOrder.getOrderAmt().add(adjustAmt).compareTo(BigDecimal.ZERO) < 1) {
 			throw new BizException(ErrorCode.ADJUST_AMT_GRERTER_ORDER_AMT_ERROR);
 		}

@@ -45,7 +45,7 @@ public class CustomerOrderQueryFormBean extends BasicFormBean {
 
 	private String proofType;
 
-	private String proofNo;
+	private String receiptOrInvoice;
 
 	private String signingPerson;
 
@@ -228,12 +228,12 @@ public class CustomerOrderQueryFormBean extends BasicFormBean {
 		this.proofType = proofType;
 	}
 
-	public String getProofNo() {
-		return proofNo;
+	public String getReceiptOrInvoice() {
+		return receiptOrInvoice;
 	}
 
-	public void setProofNo(String proofNo) {
-		this.proofNo = proofNo;
+	public void setReceiptOrInvoice(String receiptOrInvoice) {
+		this.receiptOrInvoice = receiptOrInvoice;
 	}
 
 	public String getSigningPerson() {

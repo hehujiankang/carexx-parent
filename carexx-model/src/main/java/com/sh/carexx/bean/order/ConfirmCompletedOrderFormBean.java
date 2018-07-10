@@ -23,7 +23,7 @@ public class ConfirmCompletedOrderFormBean extends BasicFormBean {
 
 	@NotBlank
 	@Size(max = 20)
-	private String proofNo;
+	private String receiptOrInvoice;
 
 	@NotBlank
 	@Size(max = 20)
@@ -59,12 +59,12 @@ public class ConfirmCompletedOrderFormBean extends BasicFormBean {
 		this.proofType = proofType;
 	}
 
-	public String getProofNo() {
-		return proofNo;
+	public String getReceiptOrInvoice() {
+		return receiptOrInvoice;
 	}
 
-	public void setProofNo(String proofNo) {
-		this.proofNo = proofNo;
+	public void setReceiptOrInvoice(String receiptOrInvoice) {
+		this.receiptOrInvoice = receiptOrInvoice;
 	}
 
 	public String getSigningPerson() {

@@ -15,7 +15,7 @@
 		<result column="inpatient_ward" jdbcType="VARCHAR" property="inpatientWard" />
 		<result column="service_start_time" jdbcType="TIMESTAMP" property="serviceStartTime" />
 		<result column="service_end_time" jdbcType="TIMESTAMP" property="serviceEndTime" />
-		<result column="holiday" jdbcType="DOUBLE" property="holiday" />
+		<result column="holiday" jdbcType="DECIMAL" property="holiday" />
 		<result column="order_status" jdbcType="TINYINT" property="orderStatus" />
 		<result column="operator" jdbcType="VARCHAR" property="operator" />
 		<result column="order_remark" jdbcType="VARCHAR" property="orderRemark" />
@@ -237,7 +237,7 @@
 			#{instId,jdbcType=INTEGER},
 			#{serviceId,jdbcType=INTEGER}, #{orderNo,jdbcType=VARCHAR}, #{orderAmt,jdbcType=DECIMAL}, #{adjustAmt,jdbcType=DECIMAL},
 			#{inpatientAreaId,jdbcType=INTEGER}, #{inpatientWard,jdbcType=VARCHAR},
-			#{serviceStartTime,jdbcType=TIMESTAMP}, #{serviceEndTime,jdbcType=TIMESTAMP}, #{holiday,jdbcType=DOUBLE},
+			#{serviceStartTime,jdbcType=TIMESTAMP}, #{serviceEndTime,jdbcType=TIMESTAMP}, #{holiday,jdbcType=DECIMAL},
 			#{orderStatus,jdbcType=TINYINT}, #{operator,jdbcType=VARCHAR}, #{orderRemark,jdbcType=VARCHAR},
 			#{instSysId,jdbcType=INTEGER}, #{proofType,jdbcType=TINYINT}, #{receiptNo,jdbcType=VARCHAR},
 			#{invoiceNo,jdbcType=VARCHAR}, #{signingPerson,jdbcType=VARCHAR}, now()

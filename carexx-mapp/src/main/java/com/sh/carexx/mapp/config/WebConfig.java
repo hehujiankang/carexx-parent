@@ -10,11 +10,7 @@ import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.util.ResourceUtils;
-import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.servlet.config.annotation.*;
 
 import com.google.common.collect.ImmutableList;
 import com.sh.carexx.mapp.interceptor.AuthInterceptor;
@@ -63,6 +59,14 @@ public class WebConfig extends WebMvcConfigurerAdapter {
 		registry.addResourceHandler("/templates/**")
 				.addResourceLocations(ResourceUtils.CLASSPATH_URL_PREFIX + "/templates/");
 		super.addResourceHandlers(registry);
+	}
+
+	@Override
+	public void addCorsMappings(CorsRegistry registry) {
+		registry.addMapping("/**")
+				.allowedHeaders("*")
+				.allowedMethods("*")
+				.allowedOrigins("*");
 	}
 
 	@Bean

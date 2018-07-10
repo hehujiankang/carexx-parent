@@ -18,7 +18,8 @@ public class CustomerOrderAdjustFormBean extends BasicFormBean {
 	@Pattern(regexp = CarexxConstant.Regex.DOUBLE)
 	private String adjustAmt;
 	
-	@NotBlank 
+	@NotBlank
+	@Pattern(regexp = "[1,2]")
 	private String proofType;
 
 	@NotBlank

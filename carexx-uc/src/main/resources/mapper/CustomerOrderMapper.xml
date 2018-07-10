@@ -15,7 +15,7 @@
 		<result column="inpatient_ward" jdbcType="VARCHAR" property="inpatientWard" />
 		<result column="service_start_time" jdbcType="TIMESTAMP" property="serviceStartTime" />
 		<result column="service_end_time" jdbcType="TIMESTAMP" property="serviceEndTime" />
-		<result column="holiday" jdbcType="DECIMAL" property="holiday" />
+		<result column="holiday" jdbcType="DOUBLE" property="holiday" />
 		<result column="order_status" jdbcType="TINYINT" property="orderStatus" />
 		<result column="operator" jdbcType="VARCHAR" property="operator" />
 		<result column="order_remark" jdbcType="VARCHAR" property="orderRemark" />
@@ -28,70 +28,70 @@
 		<result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
 	</resultMap>
 	<sql id="Base_Column_List">
-		id, order_type, user_id, customer_id, inst_id, service_id, order_no, order_amt, adjust_amt, inpatient_area_id, inpatient_ward, service_start_time, 
+		id, order_type, user_id, customer_id, inst_id, service_id, order_no, order_amt, adjust_amt, inpatient_area_id, inpatient_ward, service_start_time,
 		service_end_time, holiday, order_status, operator, order_remark, inst_sys_id, proof_type, receipt_no, invoice_no, signing_person, create_time, modify_time
 	</sql>
-	
+
 	<select id="selectByUserIdCount" parameterType="com.sh.carexx.bean.order.CustomerOrderQueryFormBean" resultType="java.lang.Integer">
-		SELECT 
-			count(1) totalCount
-		FROM 
-			carexx_customer_order co
+		SELECT
+		count(1) totalCount
+		FROM
+		carexx_customer_order co
 		WHERE
-				co.user_id = #{userId,jdbcType=INTEGER}
-			<if test="selectType != null and selectType != '' and selectType == 0">
-				and co.order_status in (2,5,6)
-			</if>
-			<if test="selectType != null and selectType != '' and selectType == 1">
-				and co.order_status in (1,3,4)
-			</if>
+		co.user_id = #{userId,jdbcType=INTEGER}
+		<if test="selectType != null and selectType != '' and selectType == 0">
+			and co.order_status in (2,5,6)
+		</if>
+		<if test="selectType != null and selectType != '' and selectType == 1">
+			and co.order_status in (1,3,4)
+		</if>
 	</select>
-	
+
 	<select id="selectByUserId" parameterType="com.sh.carexx.bean.order.CustomerOrderQueryFormBean" resultType="java.util.Map">
 		SELECT
-			co.id id,
-			co.order_type orderType,
-			co.inst_id instId,
-			ci.inst_name instName,
-			co.service_id serviceId,
-			cs.service_name serviceName,
-			co.order_no orderNo,
-			co.order_amt orderAmt,
-			cia.inpatient_area inpatientArea,
-			co.inpatient_ward inpatientWard,
-			co.service_start_time serviceStartTime,
-			co.service_end_time serviceEndTime,
-			co.order_status orderStatus,
-			co.order_remark orderRemark,
-			co.create_time createTime,
-			co.modify_time modifyTime
+		co.id id,
+		co.order_type orderType,
+		co.inst_id instId,
+		ci.inst_name instName,
+		co.service_id serviceId,
+		cs.service_name serviceName,
+		co.order_no orderNo,
+		co.order_amt orderAmt,
+		cia.inpatient_area inpatientArea,
+		co.inpatient_ward inpatientWard,
+		co.service_start_time serviceStartTime,
+		co.service_end_time serviceEndTime,
+		co.order_status orderStatus,
+		co.order_remark orderRemark,
+		co.create_time createTime,
+		co.modify_time modifyTime
 		FROM
-			carexx_customer_order co
-			LEFT JOIN carexx_care_inst ci ON co.inst_id = ci.id
-			LEFT JOIN carexx_care_service cs ON co.service_id = cs.id
-			LEFT JOIN carexx_inst_inpatient_area cia ON cia.id = co.inpatient_area_id
+		carexx_customer_order co
+		LEFT JOIN carexx_care_inst ci ON co.inst_id = ci.id
+		LEFT JOIN carexx_care_service cs ON co.service_id = cs.id
+		LEFT JOIN carexx_inst_inpatient_area cia ON cia.id = co.inpatient_area_id
 		WHERE
-				co.user_id = #{userId,jdbcType=INTEGER}
-			<if test="selectType != null and selectType != '' and selectType == 0">
-				and co.order_status in (2,5,6)
-			</if>
-			<if test="selectType != null and selectType != '' and selectType == 1">
-				and co.order_status in (1,3,4)
-			</if>
+		co.user_id = #{userId,jdbcType=INTEGER}
+		<if test="selectType != null and selectType != '' and selectType == 0">
+			and co.order_status in (2,5,6)
+		</if>
+		<if test="selectType != null and selectType != '' and selectType == 1">
+			and co.order_status in (1,3,4)
+		</if>
 		ORDER BY
-			co.create_time DESC
+		co.create_time DESC
 		LIMIT ${rowIndex}, ${pageSize}
 	</select>
-	
+
 	<select id="selectCustomerOrderCount" parameterType="com.sh.carexx.bean.order.CustomerOrderQueryFormBean" resultType="java.lang.Integer">
 		SELECT
-			count(1) totalCount
+		count(1) totalCount
 		FROM
-			carexx_customer_order co
+		carexx_customer_order co
 		LEFT JOIN carexx_inst_customer ic ON co.customer_id = ic.id
 		LEFT JOIN carexx_order_payment op ON co.order_no = op.order_no
 		<where>
-				co.order_status != 2
+			co.order_status != 2
 			<if test="instId != null and instId > 0">
 				and co.inst_id = #{instId,jdbcType=INTEGER}
 			</if>
@@ -130,44 +130,44 @@
 			</if>
 		</where>
 	</select>
-	
+
 	<select id="selectCustomerOrderList" parameterType="com.sh.carexx.bean.order.CustomerOrderQueryFormBean" resultType="java.util.Map">
 		SELECT
-			co.id id,
-			co.order_type orderType,
-			op.pay_type payType,
-			co.user_id userId,
-			co.customer_id customerId,
-			ic.real_name realName,
-			ic.phone phone,
-			ic.address address,
-			co.inst_id instId,
-			ci.inst_name instName,
-			cis.inst_sys_name instSysName,
-			co.service_id serviceId,
-			wt.id workTypeId,
-			wt.work_type_name workTypeName,
-			cs.service_name serviceName,
-			co.order_no orderNo,
-			co.order_amt orderAmt,
-			co.adjust_amt adjustAmt,
-			cia.inpatient_area inpatientArea,
-			co.inpatient_ward inpatientWard,
-			co.service_start_time serviceStartTime,
-			co.service_end_time serviceEndTime,
-			co.holiday holiday,
-			co.order_status orderStatus,
-			os.settle_status settleStatus,
-			co.operator operator,
-			co.order_remark orderRemark,
-			co.proof_type proofType,
-			co.receipt_no receiptNo,
-			co.invoice_no invoiceNo,
-			co.signing_person signingPerson,
-			co.create_time createTime,
-			co.modify_time modifyTime
+		co.id id,
+		co.order_type orderType,
+		op.pay_type payType,
+		co.user_id userId,
+		co.customer_id customerId,
+		ic.real_name realName,
+		ic.phone phone,
+		ic.address address,
+		co.inst_id instId,
+		ci.inst_name instName,
+		cis.inst_sys_name instSysName,
+		co.service_id serviceId,
+		wt.id workTypeId,
+		wt.work_type_name workTypeName,
+		cs.service_name serviceName,
+		co.order_no orderNo,
+		co.order_amt orderAmt,
+		co.adjust_amt adjustAmt,
+		cia.inpatient_area inpatientArea,
+		co.inpatient_ward inpatientWard,
+		co.service_start_time serviceStartTime,
+		co.service_end_time serviceEndTime,
+		co.holiday holiday,
+		co.order_status orderStatus,
+		os.settle_status settleStatus,
+		co.operator operator,
+		co.order_remark orderRemark,
+		co.proof_type proofType,
+		co.receipt_no receiptNo,
+		co.invoice_no invoiceNo,
+		co.signing_person signingPerson,
+		co.create_time createTime,
+		co.modify_time modifyTime
 		FROM
-			carexx_customer_order co
+		carexx_customer_order co
 		LEFT JOIN carexx_inst_customer ic ON co.customer_id = ic.id
 		LEFT JOIN carexx_care_inst ci ON co.inst_id = ci.id
 		LEFT JOIN carexx_care_service cs ON co.service_id = cs.id
@@ -178,7 +178,7 @@
 		LEFT JOIN carexx_customer_order_schedule cos ON co.order_no = cos.order_no
 		LEFT JOIN carexx_order_settle os ON cos.id = os.schedule_id
 		<where>
-				co.order_status != 2 and 
+			co.order_status != 2
 			<if test="instId != null and instId > 0">
 				and co.inst_id = #{instId,jdbcType=INTEGER}
 			</if>
@@ -217,16 +217,16 @@
 			</if>
 		</where>
 		GROUP BY
-			co.order_no
+		co.order_no
 		ORDER BY
-			co.create_time DESC
+		co.create_time DESC
 		LIMIT ${rowIndex}, ${pageSize}
 	</select>
-	
+
 	<insert id="insert" parameterType="com.sh.carexx.model.uc.CustomerOrder">
 		INSERT INTO carexx_customer_order (
 			order_type, user_id, customer_id, inst_id,
-			service_id, order_no, order_amt, adjust_amt, inpatient_area_id, inpatient_ward, 
+			service_id, order_no, order_amt, adjust_amt, inpatient_area_id, inpatient_ward,
 			service_start_time, service_end_time, holiday, order_status, operator, order_remark,
 			inst_sys_id, proof_type, receipt_no, invoice_no, signing_person, create_time
 			)
@@ -236,13 +236,13 @@
 			#{instId,jdbcType=INTEGER},
 			#{serviceId,jdbcType=INTEGER}, #{orderNo,jdbcType=VARCHAR}, #{orderAmt,jdbcType=DECIMAL}, #{adjustAmt,jdbcType=DECIMAL},
 			#{inpatientAreaId,jdbcType=INTEGER}, #{inpatientWard,jdbcType=VARCHAR},
-			#{serviceStartTime,jdbcType=TIMESTAMP}, #{serviceEndTime,jdbcType=TIMESTAMP}, #{holiday,jdbcType=DECIMAL},
+			#{serviceStartTime,jdbcType=TIMESTAMP}, #{serviceEndTime,jdbcType=TIMESTAMP}, #{holiday,jdbcType=DOUBLE},
 			#{orderStatus,jdbcType=TINYINT}, #{operator,jdbcType=VARCHAR}, #{orderRemark,jdbcType=VARCHAR},
 			#{instSysId,jdbcType=INTEGER}, #{proofType,jdbcType=TINYINT}, #{receiptNo,jdbcType=VARCHAR},
 			#{invoiceNo,jdbcType=VARCHAR}, #{signingPerson,jdbcType=VARCHAR}, now()
 		)
 	</insert>
-	
+
 	<update id="confirmCompleted" parameterType="com.sh.carexx.model.uc.CustomerOrder">
 		update
 			carexx_customer_order
@@ -255,17 +255,17 @@
 		where
 			 order_no = #{orderNo,jdbcType=VARCHAR}
 	</update>
-	
+
 	<select id="selectByOrderNo" parameterType="java.lang.String" resultMap="BaseResultMap">
-    	SELECT
-    		<include refid="Base_Column_List" />
-   		FROM
-    		carexx_customer_order
-    	WHERE
-    		 order_no = #{orderNo,jdbcType=VARCHAR}
-  	</select>
-  	
-  	<select id="selectOrderExistence" parameterType="com.sh.carexx.bean.order.CustomerOrderQueryFormBean" resultType="java.util.Map">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM
+		carexx_customer_order
+		WHERE
+		order_no = #{orderNo,jdbcType=VARCHAR}
+	</select>
+
+	<select id="selectOrderExistence" parameterType="com.sh.carexx.bean.order.CustomerOrderQueryFormBean" resultType="java.util.Map">
   		SELECT
   			ic.real_name realName,
   			co.inst_id instId,
@@ -289,36 +289,36 @@
 		(co.service_end_time > #{serviceStartTime,jdbcType=TIMESTAMP} AND co.service_end_time <![CDATA[<=]]> #{serviceEndTime,jdbcType=TIMESTAMP})
 				)
   	</select>
-  	<select id="selectIncomeCount" parameterType="com.sh.carexx.bean.order.CustomerOrderQueryFormBean" resultType="java.util.Map">
-	  	SELECT
-			co.customer_id customerId,
-			ic.real_name realName,
-			co.inst_sys_id instSysId,
-			ccis.inst_sys_name instSysName,
-			cia.inpatient_area inpatientArea,
-			co.inpatient_ward inpatientWard,
-			co.order_no orderNo,
-			co.operator operator,
-			cis.real_name staffName,
-			wt.id workTypeId,
-			wt.work_type_name workTypeName,
-			co.service_start_time serviceStartTime,
-			co.service_end_time serviceEndTime,
-			SUM(cos.service_duration) serviceDuration,
-			co.holiday holiday,
-			ics.service_price servicePrice,
-			co.order_amt orderAmt,
-			SUM(os.staff_settle_amt) staffSettleAmt,
-			SUM(os.inst_settle_amt) instSettleAmt,
-			SUM(os.adjust_amt) settleAdjustAmt,
-			co.adjust_amt orderAdjustAmt,
-			co.order_remark orderRemark,
-			co.proof_type proofType,
-			co.receipt_no receiptNo,
-			co.invoice_no invoiceNo,
-			co.signing_person signingPerson
+	<select id="selectIncomeCount" parameterType="com.sh.carexx.bean.order.CustomerOrderQueryFormBean" resultType="java.util.Map">
+		SELECT
+		co.customer_id customerId,
+		ic.real_name realName,
+		co.inst_sys_id instSysId,
+		ccis.inst_sys_name instSysName,
+		cia.inpatient_area inpatientArea,
+		co.inpatient_ward inpatientWard,
+		co.order_no orderNo,
+		co.operator operator,
+		cis.real_name staffName,
+		wt.id workTypeId,
+		wt.work_type_name workTypeName,
+		co.service_start_time serviceStartTime,
+		co.service_end_time serviceEndTime,
+		SUM(cos.service_duration) serviceDuration,
+		co.holiday holiday,
+		ics.service_price servicePrice,
+		co.order_amt orderAmt,
+		SUM(os.staff_settle_amt) staffSettleAmt,
+		SUM(os.inst_settle_amt) instSettleAmt,
+		SUM(os.adjust_amt) settleAdjustAmt,
+		co.adjust_amt orderAdjustAmt,
+		co.order_remark orderRemark,
+		co.proof_type proofType,
+		co.receipt_no receiptNo,
+		co.invoice_no invoiceNo,
+		co.signing_person signingPerson
 		FROM
-			carexx_customer_order co
+		carexx_customer_order co
 		LEFT JOIN carexx_customer_order_schedule cos ON cos.order_no = co.order_no
 		LEFT JOIN carexx_inst_staff cis ON cos.service_staff_id = cis.id
 		LEFT JOIN carexx_inst_customer ic ON co.customer_id = ic.id
@@ -329,7 +329,7 @@
 		LEFT JOIN carexx_care_service cs ON co.service_id = cs.id
 		LEFT JOIN carexx_work_type wt ON cs.work_type_id = wt.id
 		LEFT JOIN carexx_inst_inpatient_area cia ON cia.id = co.inpatient_area_id
-	<where>
+		<where>
 			co.order_status = 6 and ics.service_status = 1
 			<if test="instId != null and instId > 0">
 				and co.inst_id = #{instId,jdbcType=INTEGER}
@@ -345,9 +345,9 @@
 			</if>
 			<if test="receiptOrInvoice != null and receiptOrInvoice != '' ">
 				and (
-					co.receipt_no like CONCAT('%', '${receiptOrInvoice}', '%')
-					or co.invoice_no like CONCAT('%', '${receiptOrInvoice}', '%')
-					)
+				co.receipt_no like CONCAT('%', '${receiptOrInvoice}', '%')
+				or co.invoice_no like CONCAT('%', '${receiptOrInvoice}', '%')
+				)
 			</if>
 			<if test="instSysId != null and instSysId != '' ">
 				and co.inst_sys_id = #{instSysId,jdbcType=INTEGER}
@@ -369,38 +369,38 @@
 			</if>
 		</where>
 		GROUP BY
-			co.order_no
+		co.order_no
 		<if  test="sortName == 'receiptOrInvoice' and sortType == 0">
 			ORDER BY
-				co.invoice_no,co.receipt_no
+			co.invoice_no,co.receipt_no
 		</if >
 		<if  test="sortName == 'receiptOrInvoice' and sortType == 1">
 			ORDER BY
-				co.invoice_no DESC,co.receipt_no DESC
+			co.invoice_no DESC,co.receipt_no DESC
 		</if >
 		<if  test="sortName == 'serviceStartTime' and sortType == 0">
 			ORDER BY
-				co.service_start_time ASC
+			co.service_start_time ASC
 		</if >
 		<if  test="sortName == 'serviceStartTime' and sortType == 1">
 			ORDER BY
-				co.service_start_time DESC
+			co.service_start_time DESC
 		</if >
 		<if  test="sortName == 'serviceEndTime' and sortType == 0">
 			ORDER BY
-				co.service_end_time ASC
+			co.service_end_time ASC
 		</if >
 		<if  test="sortName == 'serviceEndTime' and sortType == 1">
 			ORDER BY
-				co.service_end_time DESC
+			co.service_end_time DESC
 		</if >
 		<if test="sortName == null and sortType == null">
 			ORDER BY
-				co.create_time,cos.id DESC
+			co.create_time,cos.id DESC
 		</if>
-  	</select>
-  	
-  	<update id="updateStatus">
+	</select>
+
+	<update id="updateStatus">
 		UPDATE
 			carexx_customer_order
 		SET
@@ -409,7 +409,7 @@
 		WHERE
 			order_no = #{orderNo,jdbcType=VARCHAR} and order_status = #{srcStatus, jdbcType=TINYINT}
 	</update>
-	
+
 	<update id="updateOrderCancel">
 		UPDATE
 			carexx_customer_order
@@ -419,7 +419,7 @@
 		WHERE
 			order_no = #{orderNo,jdbcType=VARCHAR} and order_status in (1,3)
 	</update>
-	
+
 	<update id="updateAdjustAmt"  parameterType="com.sh.carexx.model.uc.CustomerOrder">
 		update
 			carexx_customer_order
@@ -429,7 +429,7 @@
 		where
 			order_no = #{orderNo,jdbcType=VARCHAR}
 	</update>
-	
+
 	<update id="updateReceiptOrInvoice"  parameterType="com.sh.carexx.model.uc.CustomerOrder">
 		update
 			carexx_customer_order

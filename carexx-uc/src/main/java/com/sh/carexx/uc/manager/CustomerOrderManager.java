@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.sh.carexx.bean.order.ConfirmCompletedOrderFormBean;
 import com.sh.carexx.bean.order.CustomerAppointOrderFormBean;
-import com.sh.carexx.bean.order.CustomerOrderAdjustAmtFormBean;
+import com.sh.carexx.bean.order.CustomerOrderAdjustFormBean;
 import com.sh.carexx.bean.order.CustomerOrderFormBean;
 import com.sh.carexx.bean.order.CustomerOrderQueryFormBean;
 import com.sh.carexx.common.ErrorCode;
@@ -326,9 +326,9 @@ public class CustomerOrderManager {
 		Byte proofType = confirmCompletedOrderFormBean.getProofType();
 		customerOrder.setProofType(proofType);
 		if (proofType == 1) {
-			customerOrder.setReceiptNo(confirmCompletedOrderFormBean.getReceiptOrInvoice());
+			customerOrder.setReceiptNo(confirmCompletedOrderFormBean.getProofNo());
 		} else if (proofType == 2) {
-			customerOrder.setInvoiceNo(confirmCompletedOrderFormBean.getReceiptOrInvoice());
+			customerOrder.setInvoiceNo(confirmCompletedOrderFormBean.getProofNo());
 		}
 		customerOrder.setSigningPerson(confirmCompletedOrderFormBean.getSigningPerson());
 		this.customerOrderService.confirmCompleted(customerOrder);
@@ -338,36 +338,31 @@ public class CustomerOrderManager {
 
 	/**
 	 * 
-	 * adjustAmt:(调整订单金额). <br/>
+	 * adjustAmt:(调整订单). <br/>
 	 * 
 	 * @author hetao
 	 * @param customerOrderAdjustAmtFormBean
 	 * @throws BizException
 	 * @since JDK 1.8
 	 */
-	public void adjustAmt(CustomerOrderAdjustAmtFormBean customerOrderAdjustAmtFormBean) throws BizException {
-		BigDecimal adjustAmt = new BigDecimal(customerOrderAdjustAmtFormBean.getAdjustAmt());
+	@Transactional(propagation = Propagation.REQUIRED, rollbackFor = BizException.class)
+	public void adjust(CustomerOrderAdjustFormBean customerOrderAdjustFormBean) throws BizException {
+		BigDecimal adjustAmt = new BigDecimal(customerOrderAdjustFormBean.getAdjustAmt());
 		CustomerOrder customerOrder = this.customerOrderService
-				.getByOrderNo(customerOrderAdjustAmtFormBean.getOrderNo());
+				.getByOrderNo(customerOrderAdjustFormBean.getOrderNo());
 		if (customerOrder.getOrderAmt().add(adjustAmt).compareTo(BigDecimal.ZERO) < 1) {
 			throw new BizException(ErrorCode.ADJUST_AMT_GRERTER_ORDER_AMT_ERROR);
 		}
 		customerOrder.setAdjustAmt(adjustAmt);
-		this.customerOrderService.updateAdjustAmt(customerOrder);
-	}
-
-	public void modifyReceiptOrInvoice(ConfirmCompletedOrderFormBean confirmCompletedOrderFormBean)
-			throws BizException {
-		CustomerOrder customerOrder = new CustomerOrder();
-		customerOrder.setOrderNo(confirmCompletedOrderFormBean.getOrderNo());
-		customerOrder.setProofType(confirmCompletedOrderFormBean.getProofType());
-		if (confirmCompletedOrderFormBean.getProofType() == ProofType.RECEIPT.getValue()) {
-			customerOrder.setReceiptNo(confirmCompletedOrderFormBean.getReceiptOrInvoice());
-		} else if (confirmCompletedOrderFormBean.getProofType() == ProofType.INVOICE.getValue()) {
-			customerOrder.setInvoiceNo(confirmCompletedOrderFormBean.getReceiptOrInvoice());
+		customerOrder.setProofType(customerOrderAdjustFormBean.getProofType());
+		if (customerOrderAdjustFormBean.getProofType() == ProofType.RECEIPT.getValue()) {
+			customerOrder.setReceiptNo(customerOrderAdjustFormBean.getProofNo());
+			customerOrder.setInvoiceNo("");
+		} else if (customerOrderAdjustFormBean.getProofType() == ProofType.INVOICE.getValue()) {
+			customerOrder.setInvoiceNo(customerOrderAdjustFormBean.getProofNo());
+			customerOrder.setInvoiceNo("");
 		}
-
-		this.customerOrderService.updateReceiptOrInvoice(customerOrder);
+		this.customerOrderService.update(customerOrder);
 	}
 
 }

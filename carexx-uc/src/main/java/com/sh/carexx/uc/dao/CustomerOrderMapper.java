@@ -149,16 +149,5 @@ public interface CustomerOrderMapper {
 	 * @return 
 	 * @since JDK 1.8
 	 */
-	int updateAdjustAmt(CustomerOrder customerOrder);
-	
-	/**
-	 * 
-	 * updateReceiptOrInvoice:(修改凭证号). <br/> 
-	 * 
-	 * @author zhoulei 
-	 * @param customerOrder
-	 * @return 
-	 * @since JDK 1.8
-	 */
-	int updateReceiptOrInvoice(CustomerOrder customerOrder);
+	int update(CustomerOrder customerOrder);
 }

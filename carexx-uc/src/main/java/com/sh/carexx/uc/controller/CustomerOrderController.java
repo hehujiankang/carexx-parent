@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.sh.carexx.bean.order.CalcServiceFeeFormBean;
 import com.sh.carexx.bean.order.ConfirmCompletedOrderFormBean;
 import com.sh.carexx.bean.order.CustomerAppointOrderFormBean;
-import com.sh.carexx.bean.order.CustomerOrderAdjustAmtFormBean;
+import com.sh.carexx.bean.order.CustomerOrderAdjustFormBean;
 import com.sh.carexx.bean.order.CustomerOrderFormBean;
 import com.sh.carexx.bean.order.CustomerOrderQueryFormBean;
 import com.sh.carexx.common.CarexxConstant;
@@ -154,20 +154,10 @@ public class CustomerOrderController {
 		return new DataRetVal(CarexxConstant.RetCode.SUCCESS, result).toJSON();
 	}
 
-	@RequestMapping(value = "/adjustamt", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-	public BasicRetVal adjustAmt(@RequestBody CustomerOrderAdjustAmtFormBean customerOrderAdjustAmtFormBean) {
+	@RequestMapping(value = "/adjust", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+	public BasicRetVal adjustAmt(@RequestBody CustomerOrderAdjustFormBean customerOrderAdjustFormBean) {
 		try {
-			this.customerOrderManager.adjustAmt(customerOrderAdjustAmtFormBean);
-		} catch (BizException e) {
-			return new BasicRetVal(CarexxConstant.RetCode.SERVER_ERROR, e.getCode(), e.getDesc());
-		}
-		return new BasicRetVal(CarexxConstant.RetCode.SUCCESS);
-	}
-	
-	@RequestMapping(value = "/modify_receipt_or_invoice", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-	public BasicRetVal modifyReceiptOrInvoice(@RequestBody ConfirmCompletedOrderFormBean confirmCompletedOrderFormBean) {
-		try {
-			this.customerOrderManager.modifyReceiptOrInvoice(confirmCompletedOrderFormBean);
+			this.customerOrderManager.adjust(customerOrderAdjustFormBean);
 		} catch (BizException e) {
 			return new BasicRetVal(CarexxConstant.RetCode.SERVER_ERROR, e.getCode(), e.getDesc());
 		}

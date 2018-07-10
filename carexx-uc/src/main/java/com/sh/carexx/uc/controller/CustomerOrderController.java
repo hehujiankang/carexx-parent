@@ -155,7 +155,7 @@ public class CustomerOrderController {
 	}
 
 	@RequestMapping(value = "/adjust", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-	public BasicRetVal adjustAmt(@RequestBody CustomerOrderAdjustFormBean customerOrderAdjustFormBean) {
+	public BasicRetVal adjust(@RequestBody CustomerOrderAdjustFormBean customerOrderAdjustFormBean) {
 		try {
 			this.customerOrderManager.adjust(customerOrderAdjustFormBean);
 		} catch (BizException e) {

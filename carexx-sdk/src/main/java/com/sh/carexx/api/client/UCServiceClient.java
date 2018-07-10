@@ -30,7 +30,7 @@ import com.sh.carexx.bean.holiday.InstHolidayFormBean;
 import com.sh.carexx.bean.order.CalcServiceFeeFormBean;
 import com.sh.carexx.bean.order.ConfirmCompletedOrderFormBean;
 import com.sh.carexx.bean.order.CustomerAppointOrderFormBean;
-import com.sh.carexx.bean.order.CustomerOrderAdjustFormBean;
+import com.sh.carexx.bean.order.CustomerOrderAdjustAmtFormBean;
 import com.sh.carexx.bean.order.CustomerOrderFormBean;
 import com.sh.carexx.bean.order.CustomerOrderQueryFormBean;
 import com.sh.carexx.bean.order.CustomerOrderScheduleFormBean;
@@ -731,6 +731,10 @@ public interface UCServiceClient {
 	 */
 	@RequestMapping(value = "/customerorder/confirmcompleted", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	BasicRetVal confirmCompletedCustomerOrder(@RequestBody ConfirmCompletedOrderFormBean confirmCompletedOrderFormBean);
+	
+	@RequestMapping(value = "/customerorder/modify_receipt_or_invoice", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+	BasicRetVal modifyReceiptOrInvoice(@RequestBody ConfirmCompletedOrderFormBean confirmCompletedOrderFormBean);
+	
 
 	/**
 	 * 
@@ -789,8 +793,8 @@ public interface UCServiceClient {
 	 * @return 
 	 * @since JDK 1.8
 	 */
-	@RequestMapping(value = "/customerorder/adjust", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-	BasicRetVal customerOrderAdjust(@RequestBody CustomerOrderAdjustFormBean customerOrderAdjustFormBean);
+	@RequestMapping(value = "/customerorder/adjustamt", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+	BasicRetVal customerOrderAdjustAmt(@RequestBody CustomerOrderAdjustAmtFormBean cooustomerOrderAdjustAmtFormBean);
 
 	/**
 	 * 
@@ -1363,7 +1367,7 @@ public interface UCServiceClient {
 	 * 
 	 * deleteInstInpatientArea:(病区删除). <br/> 
 	 * 
-	 * @author zhoulei 
+	 * @author zhoulei  
 	 * @param id
 	 * @return 
 	 * @since JDK 1.8

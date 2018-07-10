@@ -147,5 +147,16 @@ public interface CustomerOrderService {
 	 * @throws BizException 
 	 * @since JDK 1.8
 	 */
-	void update(CustomerOrder customerOrder) throws BizException;
+	void updateAdjustAmt(CustomerOrder customerOrder) throws BizException;
+	
+	/**
+	 * 
+	 * updateReceiptOrInvoice:(修改凭证号). <br/> 
+	 * 
+	 * @author zhoulei 
+	 * @param customerOrder
+	 * @throws BizException 
+	 * @since JDK 1.8
+	 */
+	void updateReceiptOrInvoice(CustomerOrder customerOrder) throws BizException;
 }

@@ -3,31 +3,27 @@ package com.sh.carexx.bean.order;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
-import org.apache.commons.lang.StringUtils;
 import org.hibernate.validator.constraints.NotBlank;
 
 import com.sh.carexx.bean.BasicFormBean;
 import com.sh.carexx.common.CarexxConstant;
 import com.sh.carexx.common.util.ValidUtils;
 
-public class ConfirmCompletedOrderFormBean extends BasicFormBean {
+public class CustomerOrderAdjustFormBean extends BasicFormBean {
+
 	@NotBlank
 	private String orderNo;
 
 	@NotBlank
-	@Pattern(regexp = CarexxConstant.Regex.INTEGER_POSITIVE)
-	private String instSysId;
-
+	@Pattern(regexp = CarexxConstant.Regex.DOUBLE)
+	private String adjustAmt;
+	
 	@NotBlank
 	private String proofType;
 
 	@NotBlank
 	@Size(max = 20)
 	private String proofNo;
-
-	@NotBlank
-	@Size(max = 20)
-	private String signingPerson;
 
 	public String getOrderNo() {
 		return orderNo;
@@ -37,17 +33,14 @@ public class ConfirmCompletedOrderFormBean extends BasicFormBean {
 		this.orderNo = orderNo;
 	}
 
-	public Integer getInstSysId() {
-		if (StringUtils.isNotBlank(instSysId)) {
-			return Integer.parseInt(instSysId);
-		}
-		return null;
+	public String getAdjustAmt() {
+		return adjustAmt;
 	}
 
-	public void setInstSysId(String instSysId) {
-		this.instSysId = instSysId;
+	public void setAdjustAmt(String adjustAmt) {
+		this.adjustAmt = adjustAmt;
 	}
-
+	
 	public Byte getProofType() {
 		if (ValidUtils.isInteger(proofType)) {
 			return Byte.parseByte(proofType);
@@ -66,13 +59,4 @@ public class ConfirmCompletedOrderFormBean extends BasicFormBean {
 	public void setProofNo(String proofNo) {
 		this.proofNo = proofNo;
 	}
-
-	public String getSigningPerson() {
-		return signingPerson;
-	}
-
-	public void setSigningPerson(String signingPerson) {
-		this.signingPerson = signingPerson;
-	}
-
 }

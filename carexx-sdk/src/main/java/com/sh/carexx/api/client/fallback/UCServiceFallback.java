@@ -23,7 +23,7 @@ import com.sh.carexx.bean.holiday.InstHolidayFormBean;
 import com.sh.carexx.bean.order.CalcServiceFeeFormBean;
 import com.sh.carexx.bean.order.ConfirmCompletedOrderFormBean;
 import com.sh.carexx.bean.order.CustomerAppointOrderFormBean;
-import com.sh.carexx.bean.order.CustomerOrderAdjustAmtFormBean;
+import com.sh.carexx.bean.order.CustomerOrderAdjustFormBean;
 import com.sh.carexx.bean.order.CustomerOrderFormBean;
 import com.sh.carexx.bean.order.CustomerOrderQueryFormBean;
 import com.sh.carexx.bean.order.CustomerOrderScheduleFormBean;
@@ -423,7 +423,7 @@ public class UCServiceFallback implements UCServiceClient {
 	}
 
 	@Override
-	public BasicRetVal customerOrderAdjustAmt(CustomerOrderAdjustAmtFormBean customerOrderAdjustAmtFormBean) {
+	public BasicRetVal customerOrderAdjust(CustomerOrderAdjustFormBean customerOrderAdjustFormBean) {
 		return null;
 	}
 
@@ -684,12 +684,6 @@ public class UCServiceFallback implements UCServiceClient {
 
 	@Override
 	public BasicRetVal sendVerifyCode(String mobile) {
-		return null;
-	}
-
-	@Override
-	public BasicRetVal modifyReceiptOrInvoice(ConfirmCompletedOrderFormBean confirmCompletedOrderFormBean) {
-
 		return null;
 	}
 

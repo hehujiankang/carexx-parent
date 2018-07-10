@@ -126,30 +126,16 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
 	}
 
 	@Override
-	public void updateAdjustAmt(CustomerOrder customerOrder) throws BizException{
+	public void update(CustomerOrder customerOrder) throws BizException{
 		int rows = 0;
 		try {
-			rows = this.customerOrderMapper.updateAdjustAmt(customerOrder);
+			rows = this.customerOrderMapper.update(customerOrder);
 		} catch (Exception e) {
 			throw new BizException(ErrorCode.DB_ERROR, e);
 		}
 		if (rows != 1) {
 			throw new BizException(ErrorCode.DB_ERROR);
 		}
-	}
-
-	@Override
-	public void updateReceiptOrInvoice(CustomerOrder customerOrder) throws BizException {
-		int rows = 0;
-		try {
-			rows = this.customerOrderMapper.updateReceiptOrInvoice(customerOrder);
-		} catch (Exception e) {
-			throw new BizException(ErrorCode.DB_ERROR, e);
-		}
-		if (rows != 1) {
-			throw new BizException(ErrorCode.DB_ERROR);
-		}
-		
 	}
 
 }

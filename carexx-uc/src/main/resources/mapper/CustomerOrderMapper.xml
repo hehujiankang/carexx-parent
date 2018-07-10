@@ -122,8 +122,8 @@
 			<if test="proofType != null and proofType != '' ">
 				and co.proof_type = #{proofType,jdbcType=TINYINT}
 			</if>
-			<if test="receiptOrInvoice != null and receiptOrInvoice != '' ">
-				and co.receipt_no like CONCAT('%', '${receiptOrInvoice}', '%') or co.invoice_no like CONCAT('%', '${receiptOrInvoice}', '%')
+			<if test="proofNo != null and proofNo != '' ">
+				and co.receipt_no like CONCAT('%', '${proofNo}', '%') or co.invoice_no like CONCAT('%', '${proofNo}', '%')
 			</if>
 			<if test="inpatientAreaId != null and inpatientAreaId > 0 ">
 				and co.inpatient_area_id = #{inpatientAreaId,jdbcType=INTEGER}
@@ -210,8 +210,8 @@
 			<if test="proofType != null and proofType != '' ">
 				and co.proof_type = #{proofType,jdbcType=TINYINT}
 			</if>
-			<if test="receiptOrInvoice != null and receiptOrInvoice != '' ">
-				and co.receipt_no like CONCAT('%', '${receiptOrInvoice}', '%') or co.invoice_no like CONCAT('%', '${receiptOrInvoice}', '%')
+			<if test="proofNo != null and proofNo != '' ">
+				and co.receipt_no like CONCAT('%', '${proofNo}', '%') or co.invoice_no like CONCAT('%', '${proofNo}', '%')
 			</if>
 			<if test="inpatientAreaId != null and inpatientAreaId > 0 ">
 				and co.inpatient_area_id = #{inpatientAreaId,jdbcType=INTEGER}
@@ -344,10 +344,10 @@
 			<if test="proofType != null and proofType != '' ">
 				and co.proof_type = #{proofType,jdbcType=TINYINT}
 			</if>
-			<if test="receiptOrInvoice != null and receiptOrInvoice != '' ">
+			<if test="proofNo != null and proofNo != '' ">
 				and (
-				co.receipt_no like CONCAT('%', '${receiptOrInvoice}', '%')
-				or co.invoice_no like CONCAT('%', '${receiptOrInvoice}', '%')
+				co.receipt_no like CONCAT('%', '${proofNo}', '%')
+				or co.invoice_no like CONCAT('%', '${proofNo}', '%')
 				)
 			</if>
 			<if test="instSysId != null and instSysId != '' ">
@@ -371,11 +371,11 @@
 		</where>
 		GROUP BY
 		co.order_no
-		<if  test="sortName == 'receiptOrInvoice' and sortType == 0">
+		<if  test="sortName == 'proofNo' and sortType == 0">
 			ORDER BY
 			co.invoice_no,co.receipt_no
 		</if >
-		<if  test="sortName == 'receiptOrInvoice' and sortType == 1">
+		<if  test="sortName == 'proofNo' and sortType == 1">
 			ORDER BY
 			co.invoice_no DESC,co.receipt_no DESC
 		</if >
@@ -421,24 +421,17 @@
 			order_no = #{orderNo,jdbcType=VARCHAR} and order_status in (1,3)
 	</update>
 
-	<update id="updateAdjustAmt"  parameterType="com.sh.carexx.model.uc.CustomerOrder">
+	<update id="update"  parameterType="com.sh.carexx.model.uc.CustomerOrder">
 		update
 			carexx_customer_order
 		set
 			adjust_amt = #{adjustAmt,jdbcType=DECIMAL},
-			modify_time = now()
-		where
-			order_no = #{orderNo,jdbcType=VARCHAR}
-	</update>
-
-	<update id="updateReceiptOrInvoice"  parameterType="com.sh.carexx.model.uc.CustomerOrder">
-		update
-			carexx_customer_order
-		set
+			proof_type = #{proofType,jdbcType=TINYINT},
 			receipt_no = #{receiptNo,jdbcType=VARCHAR},
 			invoice_no = #{invoiceNo,jdbcType=VARCHAR},
 			modify_time = now()
 		where
 			order_no = #{orderNo,jdbcType=VARCHAR}
 	</update>
+
 </mapper>

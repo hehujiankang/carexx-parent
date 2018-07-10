@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sh.carexx.bean.order.ConfirmCompletedOrderFormBean;
-import com.sh.carexx.bean.order.CustomerOrderAdjustAmtFormBean;
+import com.sh.carexx.bean.order.CustomerOrderAdjustFormBean;
 import com.sh.carexx.bean.order.CustomerOrderFormBean;
 import com.sh.carexx.bean.order.CustomerOrderQueryFormBean;
 import com.sh.carexx.common.CarexxConstant;
@@ -67,22 +67,13 @@ public class CustomerOrderController extends BaseController {
 		return this.ucServiceClient.confirmCompletedCustomerOrder(confirmCompletedOrderFormBean);
 	}
 
-	@RequestMapping(value = "/adjustamt")
-	public BasicRetVal adjustAmt(@Valid CustomerOrderAdjustAmtFormBean customerOrderAdjustAmtFormBean,
+	@RequestMapping(value = "/adjust")
+	public BasicRetVal adjust(@Valid CustomerOrderAdjustFormBean customerOrderAdjustFormBean,
 			BindingResult bindingResult) {
-		if (customerOrderAdjustAmtFormBean.getOrderNo() == null || bindingResult.hasErrors()) {
+		if (customerOrderAdjustFormBean.getOrderNo() == null || bindingResult.hasErrors()) {
 			return new BasicRetVal(CarexxConstant.RetCode.INVALID_INPUT);
 		}
-		return this.ucServiceClient.customerOrderAdjustAmt(customerOrderAdjustAmtFormBean);
-	}
-	
-	@RequestMapping(value = "/modify_receipt_or_invoice")
-	public BasicRetVal modifyReceiptOrInvoice(@Valid ConfirmCompletedOrderFormBean confirmCompletedOrderFormBean,
-			BindingResult bindingResult) {
-		if (confirmCompletedOrderFormBean.getOrderNo() == null || bindingResult.hasErrors()) {
-			return new BasicRetVal(CarexxConstant.RetCode.INVALID_INPUT);
-		}
-		return this.ucServiceClient.modifyReceiptOrInvoice(confirmCompletedOrderFormBean);
+		return this.ucServiceClient.customerOrderAdjust(customerOrderAdjustFormBean);
 	}
 
 	@RequestMapping(value = "/income_count")

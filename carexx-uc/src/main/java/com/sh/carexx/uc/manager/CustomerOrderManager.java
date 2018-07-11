@@ -87,10 +87,13 @@ public class CustomerOrderManager {
 	 * @since JDK 1.8
 	 */
 	public BigDecimal calcServiceFee(Integer instId, Integer serviceId, Date serviceStartTime, Date serviceEndTime) {
+		// 订单总时长
 		int hour = DateUtils.getHourDiff(serviceStartTime, serviceEndTime);
+		// 节假日时长
 		int holidayHour = 0;
 		int checkHour = 0;
 		Date holidayStartTime = serviceStartTime;
+		// 检查订单中是否存在节假日，存在则累计
 		while (checkHour < hour) {
 			InstHoliday instHoliday = this.instHolidayService.getByScheduleDate(instId, holidayStartTime);
 			if (instHoliday != null) {
@@ -100,19 +103,51 @@ public class CustomerOrderManager {
 			checkHour += 12;
 		}
 		InstCareService instCareService = instCareServiceService.queryServicePrice(instId, serviceId);
+		// 正常服务金额
 		BigDecimal normalServiceFeeAmt = BigDecimal.ZERO;
+		// 节假日服务金额
 		BigDecimal holidayServiceFeeAmt = BigDecimal.ZERO;
 		if (TimeUnit.DAY.getValue() == instCareService.getServiceUnit()) {
+			// 如果节假日小时数大于零，则将节假日部分价格翻倍
 			if (holidayHour > 0) {
 				holidayServiceFeeAmt = instCareService.getServicePrice().multiply(
 						new BigDecimal(holidayHour * 2).divide(new BigDecimal(24), 2, BigDecimal.ROUND_HALF_UP));
 			}
+			// 正常时间部分计算
 			if (hour - holidayHour > 0) {
 				normalServiceFeeAmt = instCareService.getServicePrice().multiply(
 						new BigDecimal(hour - holidayHour).divide(new BigDecimal(24), 2, BigDecimal.ROUND_HALF_UP));
 			}
 		}
+		// 返回时节假日服务金额加上正常服务金额
 		return normalServiceFeeAmt.add(holidayServiceFeeAmt).setScale(2, BigDecimal.ROUND_HALF_UP);
+	}
+
+	/**
+	 * 
+	 * holidayCount:(统计订单中节假日天数). <br/>
+	 * 
+	 * @author hetao
+	 * @param instId:机构id
+	 * @param serviceStartTime:服务开始时间
+	 * @param serviceEndTime:服务结束时间
+	 * @return
+	 * @since JDK 1.8
+	 */
+	public BigDecimal holidayCount(Integer instId, Date serviceStartTime, Date serviceEndTime) {
+		int hour = DateUtils.getHourDiff(serviceStartTime, serviceEndTime);
+		BigDecimal holiday = new BigDecimal(0);
+		int checkHour = 0;
+		Date holidayStartTime = serviceStartTime;
+		while (checkHour < hour) {
+			InstHoliday instHoliday = this.instHolidayService.getByScheduleDate(instId, holidayStartTime);
+			if (instHoliday != null) {
+				holiday = holiday.add(new BigDecimal(0.5));
+			}
+			holidayStartTime = DateUtils.addHour(holidayStartTime, 12);
+			checkHour += 12;
+		}
+		return holiday;
 	}
 
 	/**
@@ -168,19 +203,14 @@ public class CustomerOrderManager {
 		customerOrder.setServiceEndTime(serviceEndTime);
 		customerOrder.setOrderAmt(this.calcServiceFee(customerOrder.getInstId(), customerOrder.getServiceId(),
 				customerOrder.getServiceStartTime(), customerOrder.getServiceEndTime()));
-		int hourNum = DateUtils.getHourDiff(serviceStartTime, serviceEndTime);
-		BigDecimal dayNum = (new BigDecimal(hourNum).divide(new BigDecimal(24), 1, BigDecimal.ROUND_HALF_UP)).stripTrailingZeros();
-		BigDecimal servicePrice = instCareServiceService
-				.queryServicePrice(customerOrder.getInstId(), customerOrder.getServiceId()).getServicePrice();
-		BigDecimal normalDay = (customerOrder.getOrderAmt().divide(servicePrice, 1, BigDecimal.ROUND_HALF_UP)).stripTrailingZeros();
-		BigDecimal holiday = (normalDay.subtract(dayNum)).stripTrailingZeros();
-		customerOrder.setHoliday(holiday);
+		customerOrder.setHoliday(this.holidayCount(customerOrder.getInstId(), customerOrder.getServiceStartTime(),
+				customerOrder.getServiceEndTime()));
 		customerOrder.setAdjustAmt(new BigDecimal(0));
 		customerOrder.setOperator(customerOrderFormBean.getOperator());
 		customerOrder.setOrderRemark(customerOrderFormBean.getOrderRemark());
 		customerOrder.setOrderStatus(OrderStatus.WAIT_SCHEDULE.getValue());
 		this.customerOrderService.save(customerOrder);
-
+		// 添加订单同时添加一条订单支付信息
 		this.orderPaymentManager.add(customerOrder);
 	}
 
@@ -260,18 +290,13 @@ public class CustomerOrderManager {
 		customerOrder.setServiceEndTime(serviceEndTime);
 		customerOrder.setOrderAmt(this.calcServiceFee(customerOrder.getInstId(), customerOrder.getServiceId(),
 				customerOrder.getServiceStartTime(), customerOrder.getServiceEndTime()));
-		int hourNum = DateUtils.getHourDiff(serviceStartTime, serviceEndTime);
-		BigDecimal dayNum = (new BigDecimal(hourNum).divide(new BigDecimal(24), 1, BigDecimal.ROUND_HALF_UP)).stripTrailingZeros();
-		BigDecimal servicePrice = instCareServiceService
-				.queryServicePrice(customerOrder.getInstId(), customerOrder.getServiceId()).getServicePrice();
-		BigDecimal normalDay = (customerOrder.getOrderAmt().divide(servicePrice, 1, BigDecimal.ROUND_HALF_UP)).stripTrailingZeros();
-		BigDecimal holiday = (normalDay.subtract(dayNum)).stripTrailingZeros();
-		customerOrder.setHoliday(holiday);
+		customerOrder.setHoliday(this.holidayCount(customerOrder.getInstId(), customerOrder.getServiceStartTime(),
+				customerOrder.getServiceEndTime()));
 		customerOrder.setAdjustAmt(new BigDecimal(0));
 		customerOrder.setOrderStatus(OrderStatus.WAIT_SCHEDULE.getValue());
 		customerOrder.setOrderRemark(customerAppointOrderFormBean.getOrderRemark());
-
 		this.customerOrderService.save(customerOrder);
+		// 添加订单同时添加一条订单支付信息
 		this.orderPaymentManager.add(customerOrder);
 	}
 
@@ -287,9 +312,11 @@ public class CustomerOrderManager {
 	@Transactional(propagation = Propagation.REQUIRED, rollbackFor = BizException.class)
 	public void cancel(String orderNo) throws BizException {
 		this.customerOrderService.updateOrderCancel(orderNo, OrderStatus.CANCELED.getValue());
+		// 通过订单号查询该订单所有的排班
 		List<CustomerOrderSchedule> orderschedulelist = this.customerOrderScheduleService.getByOrderNo(orderNo);
 		for (CustomerOrderSchedule list : orderschedulelist) {
 			this.customerOrderScheduleService.deleteOrderSchedule(list.getId(), OrderScheduleStatus.DELETED.getValue());
+			// 取消订单下的排班同时取消所有的订单结算
 			this.orderSettleService.updateStatus(list.getId(), UseStatus.ENABLED.getValue(),
 					UseStatus.DISABLED.getValue());
 		}

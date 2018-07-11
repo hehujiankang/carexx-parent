@@ -20,12 +20,12 @@ import com.sh.carexx.common.util.JSONUtils;
 
 /**
  * 
- * ClassName: SmsManager <br/> 
- * Function: 短信发送管理器 <br/> 
- * Reason: TODO ADD REASON(可选). <br/> 
- * Date: 2018年7月4日 上午10:31:53 <br/> 
+ * ClassName: SmsManager <br/>
+ * Function: 短信发送管理器 <br/>
+ * Reason: TODO ADD REASON(可选). <br/>
+ * Date: 2018年7月4日 上午10:31:53 <br/>
  * 
- * @author WL 
+ * @author WL
  * @since JDK 1.8
  */
 @Service
@@ -40,17 +40,17 @@ public class SmsManager {
 	private static final int SMS_VERIFY_CODE_EXPIRE = 5;
 
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
-	
-	//发送地址
+
+	// 发送地址
 	@Value("${sms.gateway.serviceUrl}")
 	private String serviceUrl;
-	//用户ID
+	// 用户ID
 	@Value("${sms.user.userId}")
 	private String userId;
-	//密钥
+	// 密钥
 	@Value("${sms.user.password}")
 	private String password;
-	//默认短信签名
+	// 默认短信签名
 	@Value("${sms.content.signature}")
 	private String signature;
 
@@ -59,13 +59,14 @@ public class SmsManager {
 
 	/**
 	 * 
-	 * send:发送短信 <br/> 
-	 * @author WL 
+	 * send:发送短信 <br/>
+	 * 
+	 * @author WL
 	 * @param busiType
 	 * @param mobiles（多个手机号用英文逗号隔开）
 	 * @param content
 	 * @param signature
-	 * @throws BizException 
+	 * @throws BizException
 	 * @since JDK 1.8
 	 */
 	public void send(String busiType, String mobiles, String content, String signature) throws BizException {
@@ -94,12 +95,13 @@ public class SmsManager {
 
 	/**
 	 * 
-	 * sendNotify:发送通知短信 <br/> 
-	 * @author WL 
+	 * sendNotify:发送通知短信 <br/>
+	 * 
+	 * @author WL
 	 * @param mobiles
 	 * @param content
 	 * @param signature
-	 * @throws BizException 
+	 * @throws BizException
 	 * @since JDK 1.8
 	 */
 	public void sendNotify(String mobiles, String content, String signature) throws BizException {
@@ -108,10 +110,11 @@ public class SmsManager {
 
 	/**
 	 * 
-	 * sendVerifyCode:发送验证码 <br/> 
-	 * @author WL 
+	 * sendVerifyCode:发送验证码 <br/>
+	 * 
+	 * @author WL
 	 * @param mobile
-	 * @throws BizException 
+	 * @throws BizException
 	 * @since JDK 1.8
 	 */
 	public void sendVerifyCode(String mobile) throws BizException {
@@ -125,11 +128,12 @@ public class SmsManager {
 
 	/**
 	 * 
-	 * checkSmsVerifyCode:检查短信验证码 <br/> 
-	 * @author WL 
+	 * checkSmsVerifyCode:检查短信验证码 <br/>
+	 * 
+	 * @author WL
 	 * @param mobile
 	 * @param verifyCode
-	 * @throws BizException 
+	 * @throws BizException
 	 * @since JDK 1.8
 	 */
 	public void checkSmsVerifyCode(String mobile, String verifyCode) throws BizException {

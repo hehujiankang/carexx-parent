@@ -135,10 +135,13 @@ public class CustomerOrderManager {
 	 * @since JDK 1.8
 	 */
 	public BigDecimal holidayCount(Integer instId, Date serviceStartTime, Date serviceEndTime) {
+		//订单总时长
 		int hour = DateUtils.getHourDiff(serviceStartTime, serviceEndTime);
+		//节假日天数
 		BigDecimal holiday = new BigDecimal(0);
 		int checkHour = 0;
 		Date holidayStartTime = serviceStartTime;
+		//检查存在节假日，存在则累计0.5天并往后推12小时
 		while (checkHour < hour) {
 			InstHoliday instHoliday = this.instHolidayService.getByScheduleDate(instId, holidayStartTime);
 			if (instHoliday != null) {
@@ -170,15 +173,18 @@ public class CustomerOrderManager {
 		if (ValidUtils.isDateTime(customerOrderFormBean.getServiceEndTime())) {
 			serviceEndTime = DateUtils.toDate(customerOrderFormBean.getServiceEndTime(), DateUtils.YYYY_MM_DD_HH_MM_SS);
 		}
+		//检查结束时间必须大于开始时间
 		if (!serviceStartTime.before(serviceEndTime)) {
 			throw new BizException(ErrorCode.TIME_END_BEFORE_START_ERROR);
 		}
+		//检查下单时间是否已关账
 		Date da = this.instSettleService.queryMaxSettleDateBySettleStatus(customerOrderFormBean.getInstId());
 		if (da != null) {
 			if (!da.before(serviceStartTime)) {
 				throw new BizException(ErrorCode.ORDER_SETTLE_EXISTS_ERROR);
 			}
 		}
+		//检查客户下单是否重复
 		CustomerOrderQueryFormBean customerOrderQueryFormBean = new CustomerOrderQueryFormBean();
 		customerOrderQueryFormBean.setInstId(customerOrderFormBean.getInstId());
 		customerOrderQueryFormBean.setRealName(customerOrderFormBean.getPatientName());
@@ -187,7 +193,7 @@ public class CustomerOrderManager {
 		customerOrderQueryFormBean.setServiceEndTime(customerOrderFormBean.getServiceEndTime());
 		List<Map<?, ?>> orderlist = this.customerOrderService.queryOrderExistence(customerOrderQueryFormBean);
 		if (orderlist.size() > 0) {
-			throw new BizException(ErrorCode.CUSTOMER_ORDER_SCHEDULE_EXISTS_ERROR);
+			throw new BizException(ErrorCode.CUSTOMER_ORDER_EXISTS_ERROR);
 		}
 
 		CustomerOrder customerOrder = new CustomerOrder();
@@ -209,8 +215,9 @@ public class CustomerOrderManager {
 		customerOrder.setOperator(customerOrderFormBean.getOperator());
 		customerOrder.setOrderRemark(customerOrderFormBean.getOrderRemark());
 		customerOrder.setOrderStatus(OrderStatus.WAIT_SCHEDULE.getValue());
+		//添加订单
 		this.customerOrderService.save(customerOrder);
-		// 添加订单同时添加一条订单支付信息
+		//添加一条订单支付信息
 		this.orderPaymentManager.add(customerOrder);
 	}
 
@@ -235,16 +242,18 @@ public class CustomerOrderManager {
 			serviceEndTime = DateUtils.toDate(customerAppointOrderFormBean.getServiceEndTime(),
 					DateUtils.YYYY_MM_DD_HH_MM_SS);
 		}
+		//检查结束时间必须大于开始时间
 		if (!serviceStartTime.before(serviceEndTime)) {
 			throw new BizException(ErrorCode.TIME_END_BEFORE_START_ERROR);
 		}
+		//检查下单时间是否已关账
 		Date da = this.instSettleService.queryMaxSettleDateBySettleStatus(customerAppointOrderFormBean.getInstId());
 		if (da != null) {
 			if (!da.before(serviceStartTime)) {
 				throw new BizException(ErrorCode.ORDER_SETTLE_EXISTS_ERROR);
 			}
 		}
-
+		//检查客户下单是否重复
 		CustomerOrderQueryFormBean customerOrderQueryFormBean = new CustomerOrderQueryFormBean();
 		customerOrderQueryFormBean.setInstId(customerAppointOrderFormBean.getInstId());
 		customerOrderQueryFormBean.setRealName(customerAppointOrderFormBean.getPatientName());
@@ -253,9 +262,9 @@ public class CustomerOrderManager {
 		customerOrderQueryFormBean.setServiceEndTime(customerAppointOrderFormBean.getServiceEndTime());
 		List<Map<?, ?>> orderlist = this.customerOrderService.queryOrderExistence(customerOrderQueryFormBean);
 		if (orderlist.size() > 0) {
-			throw new BizException(ErrorCode.CUSTOMER_ORDER_SCHEDULE_EXISTS_ERROR);
+			throw new BizException(ErrorCode.CUSTOMER_ORDER_EXISTS_ERROR);
 		}
-
+		//客户下单同时添加一条客户信息
 		Integer customerId = 0;
 		UserInfo userInfo = this.userService.getById(customerAppointOrderFormBean.getCustomerId());
 		InstCustomer instCustomer = this.instCustomerService.queryCustomerExistence(
@@ -295,8 +304,9 @@ public class CustomerOrderManager {
 		customerOrder.setAdjustAmt(new BigDecimal(0));
 		customerOrder.setOrderStatus(OrderStatus.WAIT_SCHEDULE.getValue());
 		customerOrder.setOrderRemark(customerAppointOrderFormBean.getOrderRemark());
+		//添加订单
 		this.customerOrderService.save(customerOrder);
-		// 添加订单同时添加一条订单支付信息
+		//添加一条订单支付信息
 		this.orderPaymentManager.add(customerOrder);
 	}
 
@@ -321,24 +331,25 @@ public class CustomerOrderManager {
 					UseStatus.DISABLED.getValue());
 		}
 	}
-
 	/**
 	 * 
-	 * confirmCompleted:(已支付订单). <br/>
+	 * throughPay:(订单支付). <br/> 
 	 * 
-	 * @author hetao
-	 * @param orderNo：订单号
-	 * @throws BizException
+	 * @author hetao 
+	 * @param orderNo
+	 * @throws BizException 
 	 * @since JDK 1.8
 	 */
 	@Transactional(propagation = Propagation.REQUIRED, rollbackFor = BizException.class)
 	public void throughPay(String orderNo) throws BizException {
+		//通过订单号查询出所有排班并将排班结算信息改为已结算
 		List<CustomerOrderSchedule> orderScheduleList = this.customerOrderScheduleService.getByOrderNo(orderNo);
 		for (CustomerOrderSchedule orderSchedule : orderScheduleList) {
 			this.orderSettleService.updateStatus(orderSchedule.getId(), OrderSettleStatus.SETTLING.getValue(),
 					OrderSettleStatus.SETTLED.getValue());
 		}
 		this.orderPaymentManager.offlinePayment(orderNo);
+		//订单状态改为已支付
 		this.customerOrderService.updateStatus(orderNo, OrderStatus.WAIT_PAY.getValue(),
 				OrderStatus.ALREADY_PAY.getValue());
 	}
@@ -364,7 +375,9 @@ public class CustomerOrderManager {
 			customerOrder.setInvoiceNo(confirmCompletedOrderFormBean.getProofNo());
 		}
 		customerOrder.setSigningPerson(confirmCompletedOrderFormBean.getSigningPerson());
+		//完成订单并添加完成信息(签单人、凭证号等)
 		this.customerOrderService.confirmCompleted(customerOrder);
+		//将订单状态由已支付改为已完成
 		this.customerOrderService.updateStatus(confirmCompletedOrderFormBean.getOrderNo(),
 				OrderStatus.ALREADY_PAY.getValue(), OrderStatus.COMPLETED.getValue());
 	}

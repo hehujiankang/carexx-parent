@@ -74,15 +74,19 @@ public class CustomerOrderScheduleManager {
 		if (!serviceStartTime.before(serviceEndTime)) {
 			throw new BizException(ErrorCode.TIME_END_BEFORE_START_ERROR);
 		}
-
+		// 选择排班时间段总时间数
 		int hourNum = DateUtils.getHourDiff(serviceStartTime, serviceEndTime);
+		// 已排班总时间
 		int amountNum = 0;
 		Date amountStartDate = serviceStartTime;
 		Date amountEndDate = serviceStartTime;
+		// 如果排班开始时间小时数等于8
 		if (DateUtils.getHourOfDay(serviceStartTime) == 8) {
+			// 总小时小于24,则直接添加该条记录
 			if (hourNum < 24) {
 				this.doShedule(customerOrderScheduleFormBean, serviceStartTime, serviceEndTime);
 			} else {
+				// 总时间大于24小时,如果未排班时间小于24小时,直接添加一条记录并结束循环,如果大于24,往后推一天并累加已排班时间
 				while (amountNum < hourNum) {
 					if (hourNum - amountNum < 24) {
 						this.doShedule(customerOrderScheduleFormBean, amountEndDate, serviceEndTime);
@@ -94,6 +98,7 @@ public class CustomerOrderScheduleManager {
 					this.doShedule(customerOrderScheduleFormBean, amountStartDate, amountEndDate);
 				}
 			}
+			// 排班开始时间小时数为其他值时,计算逻辑同上
 		} else {
 			if (hourNum < 24) {
 				this.doShedule(customerOrderScheduleFormBean, serviceStartTime, serviceEndTime);
@@ -135,16 +140,20 @@ public class CustomerOrderScheduleManager {
 		customerOrderSchedule.setServiceStartTime(amountStartDate);
 		customerOrderSchedule.setServiceEndTime(amountEndDate);
 		BigDecimal orderAmt = new BigDecimal(customerOrderScheduleFormBean.getOrderAmt());
-		if(orderAmt.compareTo(BigDecimal.ZERO)==-1){
-			customerOrderSchedule.setServiceDuration(DateUtils.getHourDiff(amountStartDate, amountEndDate)*(-1));
-		}else{
+		//判断订单金额小于0时,将排班金额修改为负数
+		if (orderAmt.compareTo(BigDecimal.ZERO) == -1) {
+			customerOrderSchedule.setServiceDuration(DateUtils.getHourDiff(amountStartDate, amountEndDate) * (-1));
+		} else {
 			customerOrderSchedule.setServiceDuration(DateUtils.getHourDiff(amountStartDate, amountEndDate));
 		}
 		customerOrderSchedule.setWorkTypeSettleId(customerOrderScheduleFormBean.getWorkTypeSettleId());
 		customerOrderSchedule.setServiceStatus(OrderScheduleStatus.IN_SERVICE.getValue());
+		//添加排班记录
 		this.customerOrderScheduleService.save(customerOrderSchedule);
+		//添加结算记录
 		this.orderSettleManager.add(customerOrderSchedule);
-
+		
+		//检查订单全部排班完成时将订单状态从待排班改为服务中
 		CustomerOrder customerOrder = this.customerOrderService
 				.getByOrderNo(customerOrderScheduleFormBean.getOrderNo());
 		List<CustomerOrderSchedule> orderScheduleList = this.customerOrderScheduleService
@@ -171,8 +180,10 @@ public class CustomerOrderScheduleManager {
 	 */
 	@Transactional(propagation = Propagation.REQUIRED, rollbackFor = BizException.class)
 	public void delete(Long id) throws BizException {
+		//删除排班记录
 		this.customerOrderScheduleService.updateStatus(id, OrderScheduleStatus.IN_SERVICE.getValue(),
 				OrderScheduleStatus.DELETED.getValue());
+		//删除结算记录
 		this.orderSettleService.updateStatus(id, OrderSettleStatus.SETTLING.getValue(),
 				OrderSettleStatus.CANCELED.getValue());
 	}
@@ -192,10 +203,14 @@ public class CustomerOrderScheduleManager {
 		if (customerOrderSchedule.getServiceStatus() == OrderScheduleStatus.COMPLETED.getValue()) {
 			return;
 		}
+		//确认排班记录为已完成
 		this.customerOrderScheduleService.updateStatus(id, OrderScheduleStatus.IN_SERVICE.getValue(),
 				OrderScheduleStatus.COMPLETED.getValue());
+		//同时修改结算为已结算
 		this.orderSettleService.updateStatus(id, OrderSettleStatus.SETTLING.getValue(),
 				OrderSettleStatus.SETTLED.getValue());
+		
+		//所有服务完成时将订单状态从服务中改为待支付
 		List<CustomerOrderSchedule> orderScheduleList = this.customerOrderScheduleService
 				.getByOrderNo(customerOrderSchedule.getOrderNo());
 		boolean flag = true;
@@ -228,8 +243,10 @@ public class CustomerOrderScheduleManager {
 			longArr[i] = Long.valueOf(strArr[i]);
 		}
 		for (int i = 0; i < longArr.length; i++) {
+			//批量删除排班记录
 			this.customerOrderScheduleService.updateStatus(longArr[i], OrderScheduleStatus.IN_SERVICE.getValue(),
 					OrderScheduleStatus.DELETED.getValue());
+			//批量删除结算记录
 			this.orderSettleService.updateStatus(longArr[i], OrderSettleStatus.SETTLING.getValue(),
 					OrderSettleStatus.CANCELED.getValue());
 		}
@@ -252,6 +269,7 @@ public class CustomerOrderScheduleManager {
 		for (int i = 0; i < strArr.length; i++) {
 			longArr[i] = Long.valueOf(strArr[i]);
 		}
+		//批量确认排班记录为已完成
 		for (int i = 0; i < longArr.length; i++) {
 			customerOrderSchedule = this.customerOrderScheduleService.getById(longArr[i]);
 			this.customerOrderScheduleService.updateStatus(longArr[i], OrderScheduleStatus.IN_SERVICE.getValue(),
@@ -267,6 +285,7 @@ public class CustomerOrderScheduleManager {
 				break;
 			}
 		}
+		//所有服务完成时将订单状态从服务中改为待支付
 		if (flag) {
 			this.customerOrderService.updateStatus(customerOrderSchedule.getOrderNo(),
 					OrderStatus.IN_SERVICE.getValue(), OrderStatus.WAIT_PAY.getValue());
@@ -275,11 +294,11 @@ public class CustomerOrderScheduleManager {
 
 	/**
 	 * 
-	 * modifySettleAmt:(调整结算金额). <br/> 
+	 * modifySettleAmt:(调整结算金额). <br/>
 	 * 
-	 * @author zhoulei 
+	 * @author zhoulei
 	 * @param orderSettleAdjustAmtFormBean
-	 * @throws BizException 
+	 * @throws BizException
 	 * @since JDK 1.8
 	 */
 	public void modifySettleAmt(OrderSettleAdjustAmtFormBean orderSettleAdjustAmtFormBean) throws BizException {
@@ -287,7 +306,7 @@ public class CustomerOrderScheduleManager {
 		if (orderSettle == null) {
 			throw new BizException(ErrorCode.DB_ERROR);
 		}
-		//校验调整的金额是否超出
+		// 校验调整的金额是否超出
 		if (orderSettle.getStaffSettleAmt().add(new BigDecimal(orderSettleAdjustAmtFormBean.getAdjustAmt()))
 				.compareTo(new BigDecimal("0.00")) == -1
 				|| orderSettle.getInstSettleAmt().subtract(new BigDecimal(orderSettleAdjustAmtFormBean.getAdjustAmt()))

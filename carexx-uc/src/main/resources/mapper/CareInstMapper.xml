@@ -91,7 +91,7 @@
 			inst_lat instLat,
 			introduce introduce,
 			create_time createTime,
-			modify_time modifyTimes
+			modify_time modifyTime
 		FROM
 			carexx_care_inst
 		WHERE

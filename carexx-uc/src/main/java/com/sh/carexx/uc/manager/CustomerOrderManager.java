@@ -373,18 +373,20 @@ public class CustomerOrderManager {
 	 * 
 	 * adjustAmt:(调整订单). <br/>
 	 * 
-	 * @author hetao
-	 * @param customerOrderAdjustAmtFormBean
+	 * @author zhoulei
+	 * @param customerOrderAdjustFormBean
 	 * @throws BizException
 	 * @since JDK 1.8
 	 */
 	@Transactional(propagation = Propagation.REQUIRED, rollbackFor = BizException.class)
 	public void adjust(CustomerOrderAdjustFormBean customerOrderAdjustFormBean) throws BizException {
 		BigDecimal adjustAmt = new BigDecimal(customerOrderAdjustFormBean.getAdjustAmt());
+		//校验调整金额是否合法
 		CustomerOrder customerOrder = this.customerOrderService.getByOrderNo(customerOrderAdjustFormBean.getOrderNo());
 		if (customerOrder.getOrderAmt().add(adjustAmt).compareTo(BigDecimal.ZERO) < 1) {
 			throw new BizException(ErrorCode.ADJUST_AMT_GRERTER_ORDER_AMT_ERROR);
 		}
+		
 		customerOrder.setAdjustAmt(adjustAmt);
 		customerOrder.setProofType(customerOrderAdjustFormBean.getProofType());
 		if (customerOrderAdjustFormBean.getProofType() == ProofType.RECEIPT.getValue()) {
@@ -392,7 +394,7 @@ public class CustomerOrderManager {
 			customerOrder.setInvoiceNo("");
 		} else if (customerOrderAdjustFormBean.getProofType() == ProofType.INVOICE.getValue()) {
 			customerOrder.setInvoiceNo(customerOrderAdjustFormBean.getProofNo());
-			customerOrder.setInvoiceNo("");
+			customerOrder.setReceiptNo("");
 		}
 		this.customerOrderService.update(customerOrder);
 	}

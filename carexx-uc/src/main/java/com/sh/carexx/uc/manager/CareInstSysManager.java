@@ -10,12 +10,31 @@ import com.sh.carexx.common.exception.BizException;
 import com.sh.carexx.model.uc.CareInstSys;
 import com.sh.carexx.uc.service.CareInstSysService;
 
+/**
+ * 
+ * ClassName: CareInstSysManager <br/> 
+ * Function: 机构公司 <br/> 
+ * Reason: TODO ADD REASON(可选). <br/> 
+ * Date: 2018年7月12日 上午11:28:49 <br/> 
+ * 
+ * @author zhoulei 
+ * @since JDK 1.8
+ */
 @Service
 public class CareInstSysManager {
 
 	@Autowired
 	public CareInstSysService careInstSysService;
 
+	/**
+	 * 
+	 * add:(机构公司新增). <br/> 
+	 * 
+	 * @author zhoulei 
+	 * @param careInstSysFormBean
+	 * @throws BizException 
+	 * @since JDK 1.8
+	 */
 	public void add(CareInstSysFormBean careInstSysFormBean) throws BizException {
 		if (careInstSysService.getByInstSysName(careInstSysFormBean) != null) {
 			throw new BizException(ErrorCode.INST_SYS_EXISTS_ERROR);
@@ -30,10 +49,28 @@ public class CareInstSysManager {
 		}
 	}
 
+	/**
+	 * 
+	 * enable:(机构公司启用). <br/> 
+	 * 
+	 * @author zhoulei 
+	 * @param id
+	 * @throws BizException 
+	 * @since JDK 1.8
+	 */
 	public void enable(Integer id) throws BizException {
 		this.careInstSysService.updateStatus(id, UseStatus.DISABLED.getValue(), UseStatus.ENABLED.getValue());
 	}
 
+	/**
+	 * 
+	 * disable:(机构公司禁用). <br/> 
+	 * 
+	 * @author zhoulei 
+	 * @param id
+	 * @throws BizException 
+	 * @since JDK 1.8
+	 */
 	public void disable(Integer id) throws BizException {
 		this.careInstSysService.updateStatus(id, UseStatus.ENABLED.getValue(), UseStatus.DISABLED.getValue());
 	}

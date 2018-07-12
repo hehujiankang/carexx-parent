@@ -273,11 +273,21 @@ public class CustomerOrderScheduleManager {
 		}
 	}
 
+	/**
+	 * 
+	 * modifySettleAmt:(调整结算金额). <br/> 
+	 * 
+	 * @author zhoulei 
+	 * @param orderSettleAdjustAmtFormBean
+	 * @throws BizException 
+	 * @since JDK 1.8
+	 */
 	public void modifySettleAmt(OrderSettleAdjustAmtFormBean orderSettleAdjustAmtFormBean) throws BizException {
 		OrderSettle orderSettle = this.orderSettleService.getByScheduleId(orderSettleAdjustAmtFormBean.getScheduleId());
 		if (orderSettle == null) {
 			throw new BizException(ErrorCode.DB_ERROR);
 		}
+		//校验调整的金额是否超出
 		if (orderSettle.getStaffSettleAmt().add(new BigDecimal(orderSettleAdjustAmtFormBean.getAdjustAmt()))
 				.compareTo(new BigDecimal("0.00")) == -1
 				|| orderSettle.getInstSettleAmt().subtract(new BigDecimal(orderSettleAdjustAmtFormBean.getAdjustAmt()))

@@ -11,6 +11,16 @@ import com.sh.carexx.model.uc.UserMsgStatus;
 import com.sh.carexx.uc.service.UserMsgService;
 import com.sh.carexx.uc.service.UserMsgStatusService;
 
+/**
+ * 
+ * ClassName: UserMsgManager <br/> 
+ * Function: 消息通知 <br/> 
+ * Reason: TODO ADD REASON(可选). <br/> 
+ * Date: 2018年7月12日 下午1:59:12 <br/> 
+ * 
+ * @author zhoulei 
+ * @since JDK 1.8
+ */
 @Service
 public class UserMsgManager {
 
@@ -20,6 +30,15 @@ public class UserMsgManager {
 	@Autowired
 	public UserMsgStatusService userMsgStatusService;
 
+	/**
+	 * 
+	 * add:(添加消息). <br/> 
+	 * 
+	 * @author zhoulei 
+	 * @param userMsgFormBean
+	 * @throws BizException 
+	 * @since JDK 1.8
+	 */
 	public void add(UserMsgFormBean userMsgFormBean) throws BizException {
 		UserMsg userMsg = new UserMsg();
 		userMsg.setMsgType(userMsgFormBean.getMsgType());
@@ -29,6 +48,16 @@ public class UserMsgManager {
 		this.userMsgService.save(userMsg);
 	}
 
+	/**
+	 * 
+	 * addMsgStatus:(读消息). <br/> 
+	 * 
+	 * @author zhoulei 
+	 * @param userId
+	 * @param msgId
+	 * @throws BizException 
+	 * @since JDK 1.8
+	 */
 	public void addMsgStatus(Integer userId, Long msgId) throws BizException {
 		UserMsgStatus userMsgStatus = this.userMsgStatusService.getByMsgId(msgId);
 		if (userMsgStatus != null) {
@@ -41,6 +70,15 @@ public class UserMsgManager {
 		this.userMsgStatusService.save(userMsgStatus);
 	}
 
+	/**
+	 * 
+	 * delete:(删除消息). <br/> 
+	 * 
+	 * @author zhoulei 
+	 * @param id
+	 * @throws BizException 
+	 * @since JDK 1.8
+	 */
 	public void delete(Long id) throws BizException {
 		this.userMsgStatusService.delete(id);
 	}

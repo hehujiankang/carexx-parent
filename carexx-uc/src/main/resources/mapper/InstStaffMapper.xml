@@ -55,6 +55,9 @@
 			<if test="realName != null and realName != '' ">
 				and cis.real_name like CONCAT('%', '${realName}', '%')
 			</if>
+			<if test="idNo != null and idNo != '' ">
+				and cis.id_no like CONCAT('%', '${idNo}', '%')
+			</if>
 			<if test="personType != null ">
 				and cis.person_type = #{personType,jdbcType=TINYINT}
 			</if>
@@ -102,6 +105,9 @@
 			cis.staff_status = 1 
 			<if test="realName != null and realName != '' ">
 				and cis.real_name like CONCAT('%', '${realName}', '%')
+			</if>
+			<if test="idNo != null and idNo != '' ">
+				and cis.id_no like CONCAT('%', '${idNo}', '%')
 			</if>
 			<if test="personType != null ">
 				and cis.person_type = #{personType,jdbcType=TINYINT}

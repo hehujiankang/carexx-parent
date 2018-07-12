@@ -14,12 +14,14 @@ public class InstStaffQueryFormBean extends BasicFormBean {
 	private String serviceId;
 
 	private String personType;
-	
+
 	private String jobStatus;
-	
+
 	private String workTypeId;
-	
+
 	private String realName;
+
+	private String idNo;
 
 	public Integer getInstId() {
 		return instId;
@@ -90,6 +92,14 @@ public class InstStaffQueryFormBean extends BasicFormBean {
 
 	public void setRealName(String realName) {
 		this.realName = realName;
+	}
+
+	public String getIdNo() {
+		return idNo;
+	}
+
+	public void setIdNo(String idNo) {
+		this.idNo = idNo;
 	}
 
 }

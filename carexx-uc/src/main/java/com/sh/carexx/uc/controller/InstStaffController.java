@@ -50,6 +50,13 @@ public class InstStaffController {
 		}
 		return new DataRetVal(CarexxConstant.RetCode.SUCCESS, new PagerBean(totalNum, resultList)).toJSON();
 	}
+	
+	@RequestMapping(value = "/all", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+	public String queryForAll(@RequestBody InstStaffQueryFormBean instStaffQueryFormBean) {
+		List<Map<?, ?>> resultList = null;
+		resultList = this.instStaffService.queryAllInstStaff(instStaffQueryFormBean);
+		return new DataRetVal(CarexxConstant.RetCode.SUCCESS, resultList).toJSON();
+	}
 
 	@RequestMapping(value = "/list_by_serviceid", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	public String queryForListByServiceId(@RequestBody InstStaffQueryFormBean instStaffQueryFormBean) {

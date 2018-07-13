@@ -65,6 +65,10 @@ public class InstStaffServiceImpl implements InstStaffService {
 	}
 
 	@Override
+	public List<Map<?, ?>> queryAllInstStaff(InstStaffQueryFormBean instStaffQueryFormBean) {
+		return instStaffMapper.selectAllInstStaff(instStaffQueryFormBean);
+	}
+	@Override
 	public void update(InstStaff instStaff) throws BizException {
 		int rows = 0;
 		try {

@@ -96,6 +96,17 @@ public interface InstStaffMapper {
 	 * @since JDK 1.8
 	 */
 	List<Map<?, ?>> selectInstStaffList(InstStaffQueryFormBean instStaffQueryFormBean);
+	
+	/**
+	 * 
+	 * selectAllInstStaff:(查询所有员工信息). <br/> 
+	 * 
+	 * @author zhoulei 
+	 * @param instStaffQueryFormBean
+	 * @return 
+	 * @since JDK 1.8
+	 */
+	List<Map<?, ?>> selectAllInstStaff(InstStaffQueryFormBean instStaffQueryFormBean);
 
 	/**
 	 * 

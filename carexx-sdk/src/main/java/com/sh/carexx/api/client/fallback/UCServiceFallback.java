@@ -466,6 +466,11 @@ public class UCServiceFallback implements UCServiceClient {
 	public String queryInstStaffForList(InstStaffQueryFormBean instStaffQueryFormBean) {
 		return null;
 	}
+	
+	@Override
+	public String queryInstStaffForAll(InstStaffQueryFormBean instStaffQueryFormBean) {
+		return null;
+	}
 
 	@Override
 	public String queryInstStaffByServiceId(InstStaffQueryFormBean instStaffQueryFormBean) {

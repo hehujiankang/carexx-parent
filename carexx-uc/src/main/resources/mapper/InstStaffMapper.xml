@@ -125,6 +125,58 @@
 		ORDER BY cis.create_time DESC
 		limit ${rowIndex}, ${pageSize}
 	</select>
+	<select id="selectAllInstStaff" parameterType="com.sh.carexx.bean.staff.InstStaffQueryFormBean" resultType="java.util.Map">
+			select
+				cis.id id,
+				cis.inst_id instId,
+				cci.inst_name instName,
+				cis.service_inst_id serviceInstId,
+				ccis.inst_name serviceInstName,
+				cis.person_type personType,
+				cis.job_status jobStatus,
+				cis.staff_status staffStatus,
+				cis.real_name realName,
+				wct.id workTypeId,
+				wct.work_type_name workTypeName,
+				cis.id_no idNo,
+				cis.sex sex,
+				cis.photo photo,
+				cis.birthday birthday,
+				cis.phone phone,
+				cis.address address,
+				cis.entry_date entryDate,
+				cis.leave_date leaveDate,
+				cis.create_time createTime,
+				cis.modify_time modifyTime
+		FROM
+			carexx_inst_staff cis
+		LEFT JOIN carexx_care_inst cci ON cis.inst_id = cci.id
+		LEFT JOIN carexx_care_inst ccis ON cis.service_inst_id = ccis.id
+		LEFT JOIN carexx_inst_staff_work_type ciswt ON cis.id = ciswt.staff_id
+		LEFT JOIN carexx_work_type wct ON ciswt.work_type_id = wct.id
+		<where>
+			cis.staff_status = 1 
+			<if test="realName != null and realName != '' ">
+				and cis.real_name like CONCAT('%', '${realName}', '%')
+			</if>
+			<if test="idNo != null and idNo != '' ">
+				and cis.id_no like CONCAT('%', '${idNo}', '%')
+			</if>
+			<if test="personType != null ">
+				and cis.person_type = #{personType,jdbcType=TINYINT}
+			</if>
+			<if test="jobStatus != null">
+				and cis.job_status = #{jobStatus,jdbcType=TINYINT}
+			</if>
+			<if test="workTypeId != null">
+				and wct.id = #{workTypeId,jdbcType=INTEGER}
+			</if>
+			<if test="instId != null and instId > 0">
+				and cis.inst_id = #{instId,jdbcType=INTEGER}
+			</if>
+		</where>
+		ORDER BY cis.create_time DESC
+	</select>
 	<select id="selectInstStaffCountByServiceId" parameterType="com.sh.carexx.bean.staff.InstStaffQueryFormBean" resultType="java.lang.Integer">
 		SELECT
 			count(1) totalCount

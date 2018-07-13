@@ -852,6 +852,8 @@ public interface UCServiceClient {
 	@RequestMapping(value = "/inststaff/list", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	String queryInstStaffForList(@RequestBody InstStaffQueryFormBean instStaffQueryFormBean);
 
+	@RequestMapping(value = "/inststaff/all", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+	String queryInstStaffForAll(@RequestBody InstStaffQueryFormBean instStaffQueryFormBean);
 	/**
 	 * 
 	 * queryInstStaffByServiceId:(通过服务id和机构id查询). <br/>

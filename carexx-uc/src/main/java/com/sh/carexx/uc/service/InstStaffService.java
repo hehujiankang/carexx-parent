@@ -97,6 +97,16 @@ public interface InstStaffService {
 
 	/**
 	 * 
+	 * queryAllInstStaff:(查询全部员工信息). <br/> 
+	 * 
+	 * @author zhoulei 
+	 * @param instStaffQueryFormBean
+	 * @return 
+	 * @since JDK 1.8
+	 */
+	List<Map<?, ?>> queryAllInstStaff(InstStaffQueryFormBean instStaffQueryFormBean);
+	/**
+	 * 
 	 * update:(修改员工方法). <br/>
 	 * 
 	 * @author zhoulei

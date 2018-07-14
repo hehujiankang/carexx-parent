@@ -114,7 +114,7 @@ public class CustomerOrderController extends BaseController {
 				String serviceDuration = String.valueOf(map.get("serviceDuration"));
 				BigDecimal days = new BigDecimal(serviceDuration)
 						.divide(new BigDecimal(24), 1, BigDecimal.ROUND_HALF_UP).stripTrailingZeros();
-				map.put("days", days);
+				map.put("days", days.toPlainString());
 
 				SimpleDateFormat simp = new SimpleDateFormat();
 				simp.applyPattern(DateUtils.YYYY_MM_DD_HH_MM_SS);

@@ -46,7 +46,6 @@ public final class JwtUtils {
         try {
             JWTVerifier verifier = JWT.require(Algorithm.HMAC256(key)).build();
             jwt = verifier.verify(token);
-            Map<String, Claim> claims = jwt.getClaims();
             return jwt.getClaims();
         } catch (Exception ex) {
             logger.error("Verify jwt token failed, token={}", token, ex);

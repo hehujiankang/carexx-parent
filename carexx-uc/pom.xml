@@ -12,6 +12,10 @@
 	<description>Carexx UC</description>
 	<dependencies>
 		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-jdbc</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>com.sh.carexx</groupId>
 			<artifactId>carexx-model</artifactId>
 			<version>1.0.1</version>

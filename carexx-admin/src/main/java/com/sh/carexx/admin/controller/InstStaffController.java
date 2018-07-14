@@ -119,7 +119,7 @@ public class InstStaffController extends BaseController {
 				}
 			}
 		}
-		String[] heads = { "姓名", "工种", "性别", "身份证", "电话", "生日", "性质", "状态", "住址", "所属单位", "服务单位", "入职日期", "离职日期" };
+		String[] heads = { "姓名", "工种", "性别", "身份证", "电话", "生日", "住址", "性质", "状态", "所属单位", "服务单位", "入职日期", "离职日期" };
 		String[] cols = { "realName", "workTypeName", "sex", "idNo", "phone", "birthday", "address", "personType",
 				"jobStatus", "instName", "serviceInstName", "entryDate", "leaveDate" };
 		int[] numColIndexs = {};

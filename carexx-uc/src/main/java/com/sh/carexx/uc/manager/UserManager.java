@@ -25,6 +25,8 @@ public class UserManager {
 	private UserService userService;
 	@Autowired
 	private UserOAuthService userOAuthService;
+	@Autowired
+	private SmsManager smsManager;
 
 	@Transactional(propagation = Propagation.REQUIRED, rollbackFor = BizException.class)
 	public String doOAuthLogin(OAuthLoginFormBean oAuthLoginFormBean) throws BizException {
@@ -67,4 +69,10 @@ public class UserManager {
 		}
 		return null;
 	}
+	
+	@Transactional(propagation = Propagation.REQUIRED, rollbackFor = BizException.class)
+	public void modifyBindMobile(Integer id, String mobile, String verifyCode) throws BizException{
+		this.smsManager.checkSmsVerifyCode(mobile, verifyCode);
+		this.userService.updateMobileById(id, mobile);
+	} 
 }

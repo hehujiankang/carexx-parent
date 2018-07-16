@@ -73,6 +73,11 @@ public class UCServiceFallback implements UCServiceClient {
 	}
 
 	@Override
+	public BasicRetVal modifyUserBindMobile(Integer id, String mobile, String verifyCode) {
+		return null;
+	}
+
+	@Override
 	public BasicRetVal addAclUser(AclRegFormBean aclRegFormBean) {
 		return null;
 	}
@@ -466,7 +471,7 @@ public class UCServiceFallback implements UCServiceClient {
 	public String queryInstStaffForList(InstStaffQueryFormBean instStaffQueryFormBean) {
 		return null;
 	}
-	
+
 	@Override
 	public String queryInstStaffForAll(InstStaffQueryFormBean instStaffQueryFormBean) {
 		return null;

@@ -12,9 +12,9 @@ import com.sh.carexx.model.uc.UserInfo;
 @RequestMapping(value = "/user")
 public class UserController extends BaseController {
 
-	@RequestMapping(value = "/get_user_info")
-	public String getUserInfo() {
-		UserInfo userInfo = this.ucServiceClient.getUserInfo(SessionHolder.getUserId());
-		return new DataRetVal(CarexxConstant.RetCode.SUCCESS, userInfo).toJSON();
-	}
+    @RequestMapping(value = "/get_user_info")
+    public String getUserInfo() {
+        UserInfo userInfo = this.ucServiceClient.getUserInfo(SessionHolder.getUserId());
+        return new DataRetVal(CarexxConstant.RetCode.SUCCESS, userInfo).toJSON();
+    }
 }

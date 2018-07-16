@@ -69,6 +69,9 @@ public interface UCServiceClient {
 
 	@RequestMapping(value = "/user/get_user_info/{id}", method = RequestMethod.GET)
 	UserInfo getUserInfo(@PathVariable("id") Integer id);
+	
+	@RequestMapping(value = "/user/modify_bind_mobile/{id}/{mobile}/{verifyCode}", method = RequestMethod.GET)
+	BasicRetVal modifyUserBindMobile(@PathVariable("id") Integer id, @PathVariable("mobile") String mobile, @PathVariable("verifyCode") String verifyCode);
 
 	@RequestMapping(value = "/acluser/add", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	BasicRetVal addAclUser(@RequestBody AclRegFormBean aclRegFormBean);

@@ -14,16 +14,16 @@ import com.sh.carexx.uc.manager.SmsManager;
 @RestController
 @RequestMapping("/sms")
 public class SmsController {
-	@Autowired
-	private SmsManager smsManager;
+    @Autowired
+    private SmsManager smsManager;
 
-	@RequestMapping(value = "/send_verify_code/{mobile}", method = RequestMethod.GET)
-	public BasicRetVal sendVerifyCode(@PathVariable("mobile") String mobile) {
-		try {
-			this.smsManager.sendVerifyCode(mobile);
-			return new BasicRetVal(CarexxConstant.RetCode.SUCCESS);
-		} catch (BizException e) {
-			return new BasicRetVal(CarexxConstant.RetCode.SERVER_ERROR, e.getCode(), e.getDesc());
-		}
-	}
+    @RequestMapping(value = "/send_verify_code/{mobile}", method = RequestMethod.GET)
+    public BasicRetVal sendVerifyCode(@PathVariable("mobile") String mobile) {
+        try {
+            this.smsManager.sendVerifyCode(mobile);
+            return new BasicRetVal(CarexxConstant.RetCode.SUCCESS);
+        } catch (BizException e) {
+            return new BasicRetVal(CarexxConstant.RetCode.SERVER_ERROR, e.getCode(), e.getDesc());
+        }
+    }
 }

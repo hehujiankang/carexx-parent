@@ -17,4 +17,5 @@ public class UserController extends BaseController {
         UserInfo userInfo = this.ucServiceClient.getUserInfo(SessionHolder.getUserId());
         return new DataRetVal(CarexxConstant.RetCode.SUCCESS, userInfo).toJSON();
     }
+
 }

@@ -85,8 +85,8 @@
 			<artifactId>spring-boot-starter-data-redis</artifactId>
 			<exclusions>
 				<exclusion>
-					<groupId>io.lettuce</groupId>
-					<artifactId>lettuce-core</artifactId>
+					<groupId>org.springframework.data</groupId>
+					<artifactId>spring-data-redis</artifactId>
 				</exclusion>
 			</exclusions>
 		</dependency>
